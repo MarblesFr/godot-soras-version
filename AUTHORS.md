@@ -23,6 +23,10 @@ name is available.
 
     Rémi Verschelde (akien-mga)
 
+## Fork Author
+
+    Sora
+
 ## Developers
 
 (in alphabetical order, with over 10 commits excluding merges)
