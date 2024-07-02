@@ -28,30 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef CHARACTER_BODY_2D_H
-#define CHARACTER_BODY_2D_H
+#ifndef SIMULATED_BODY_2D_H
+#define SIMULATED_BODY_2D_H
 
 #include "scene/2d/physics/kinematic_collision_2d.h"
 #include "scene/2d/physics/physics_body_2d.h"
-#include "scene/2d/physics/solid_body_2d.h"
 
-class CharacterBody2D : public PhysicsBody2D {
-	GDCLASS(CharacterBody2D, PhysicsBody2D);
-
-protected:
-	static void _bind_methods();
+class SimulatedBody2D : public PhysicsBody2D {
+	GDCLASS(SimulatedBody2D, PhysicsBody2D);
 
 public:
-	bool move_h_exact(int32_t p_amount, const Callable &p_callback) override;
-	bool move_v_exact(int32_t p_amount, const Callable &p_callback) override;
-
-	bool _is_riding(const RID &p_solid);
-	void _squish();
-
-	GDVIRTUAL1R(bool, _is_riding, RID)
-	GDVIRTUAL0(_squish)
-
-	CharacterBody2D();
+	SimulatedBody2D();
 };
 
-#endif // CHARACTER_BODY_2D_H
+#endif // SIMULATED_BODY_2D_H

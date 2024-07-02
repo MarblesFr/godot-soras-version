@@ -31,9 +31,6 @@
 #include "character_body_2d.h"
 
 void CharacterBody2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("on_ground"), &CharacterBody2D::on_ground);
-	ClassDB::bind_method(D_METHOD("collides_at", "delta", "result"), &CharacterBody2D::_collides_at, DEFVAL(Variant()));
-
 	GDVIRTUAL_BIND(_is_riding, "solid");
 	GDVIRTUAL_BIND(_squish);
 }
@@ -89,23 +86,6 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback)
 		translate(move_dir_vector);
 	}
 	return false;
-}
-
-bool CharacterBody2D::collides_at(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result) {
-	return PhysicsServer2D::get_singleton()->body_collides_at(get_rid(), get_global_transform_i(), p_delta, p_result);
-}
-
-bool CharacterBody2D::_collides_at(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &p_result) {
-	PhysicsServer2D::CollisionResult *result_ptr = nullptr;
-	if (p_result.is_valid()) {
-		result_ptr = p_result->get_result_ptr();
-	}
-
-	return collides_at(p_delta, result_ptr);
-}
-
-bool CharacterBody2D::on_ground() {
-	return collides_at(Vector2i(0, 1));
 }
 
 bool CharacterBody2D::_is_riding(const RID &p_solid) {

@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  character_body_2d.h                                                   */
+/*  character_body_2d.cpp                                                 */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,30 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef CHARACTER_BODY_2D_H
-#define CHARACTER_BODY_2D_H
+#include "simulated_body_2d.h"
 
-#include "scene/2d/physics/kinematic_collision_2d.h"
-#include "scene/2d/physics/physics_body_2d.h"
-#include "scene/2d/physics/solid_body_2d.h"
-
-class CharacterBody2D : public PhysicsBody2D {
-	GDCLASS(CharacterBody2D, PhysicsBody2D);
-
-protected:
-	static void _bind_methods();
-
-public:
-	bool move_h_exact(int32_t p_amount, const Callable &p_callback) override;
-	bool move_v_exact(int32_t p_amount, const Callable &p_callback) override;
-
-	bool _is_riding(const RID &p_solid);
-	void _squish();
-
-	GDVIRTUAL1R(bool, _is_riding, RID)
-	GDVIRTUAL0(_squish)
-
-	CharacterBody2D();
-};
-
-#endif // CHARACTER_BODY_2D_H
+SimulatedBody2D::SimulatedBody2D() :
+		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_SIMULATED) {
+}
