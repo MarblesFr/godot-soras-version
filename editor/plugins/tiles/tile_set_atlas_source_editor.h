@@ -323,6 +323,25 @@ public:
 	EditorPropertyTilePolygon();
 };
 
+class EditorPropertyTileRectangle : public EditorProperty {
+GDCLASS(EditorPropertyTileRectangle, EditorProperty);
+
+	StringName count_property;
+	String element_pattern;
+	String base_type;
+
+	void _add_focusable_children(Node *p_node);
+
+	GenericTileRectangleIEditor *generic_tile_rectangle_editor = nullptr;
+	void _rectangles_changed();
+
+public:
+	virtual void update_property() override;
+	void setup_single_mode(const StringName &p_property, const String &p_base_type);
+	void setup_multiple_mode(const StringName &p_property, const StringName &p_count_property, const String &p_element_pattern, const String &p_base_type);
+	EditorPropertyTileRectangle();
+};
+
 class EditorInspectorPluginTileData : public EditorInspectorPlugin {
 	GDCLASS(EditorInspectorPluginTileData, EditorInspectorPlugin);
 

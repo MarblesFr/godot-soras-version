@@ -2134,15 +2134,14 @@ void TileSetAtlasSourceEditor::_undo_redo_inspector_callback(Object *p_undo_redo
 		internal_undo_redo->start_force_keep_in_merge_ends();
 
 		Vector<String> components = String(p_property).split("/", true, 2);
-		if (components.size() == 2 && components[1] == "polygons_count") {
+		if (components.size() == 2 && components[1] == "rectangles_count") {
 			int layer_index = components[0].trim_prefix("physics_layer_").to_int();
-			int new_polygons_count = p_new_value;
-			int old_polygons_count = tile_data_proxy->get(vformat("physics_layer_%d/polygons_count", layer_index));
-			if (new_polygons_count < old_polygons_count) {
-				for (int i = new_polygons_count; i < old_polygons_count; i++) {
-					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/polygon_%d/points", layer_index, i));
-					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/polygon_%d/one_way", layer_index, i));
-					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/polygon_%d/one_way_margin", layer_index, i));
+			int new_rectangles_count = p_new_value;
+			int old_rectangles_count = tile_data_proxy->get(vformat("physics_layer_%d/rectangles_count", layer_index));
+			if (new_rectangles_count < old_rectangles_count) {
+				for (int i = new_rectangles_count; i < old_rectangles_count; i++) {
+					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/rectangle_%d/data", layer_index, i));
+					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/rectangle_%d/one_way", layer_index, i));
 				}
 			}
 		} else if (p_property == "terrain_set") {
@@ -2891,6 +2890,93 @@ EditorPropertyTilePolygon::EditorPropertyTilePolygon() {
 	_add_focusable_children(generic_tile_polygon_editor);
 }
 
+////// EditorPropertyTileRectangle //////
+
+void EditorPropertyTileRectangle::_add_focusable_children(Node *p_node) {
+	Control *control = Object::cast_to<Control>(p_node);
+	if (control && control->get_focus_mode() != Control::FOCUS_NONE) {
+		add_focusable(control);
+	}
+	for (int i = 0; i < p_node->get_child_count(); i++) {
+		_add_focusable_children(p_node->get_child(i));
+	}
+}
+
+void EditorPropertyTileRectangle::_rectangles_changed() {
+	if (!String(count_property).is_empty()) {
+		if (base_type.is_empty()) {
+			// Multiple array of vertices.
+			Vector<String> changed_properties;
+			Array values;
+			int count = generic_tile_rectangle_editor->get_rectangle_count();
+			changed_properties.push_back(count_property);
+			values.push_back(count);
+			for (int i = 0; i < count; i++) {
+				changed_properties.push_back(vformat(element_pattern, i));
+				values.push_back(generic_tile_rectangle_editor->get_rectangle(i));
+			}
+			emit_signal(SNAME("multiple_properties_changed"), changed_properties, values, false);
+		}
+	}
+}
+
+void EditorPropertyTileRectangle::update_property() {
+	TileSetAtlasSourceEditor::AtlasTileProxyObject *atlas_tile_proxy_object = Object::cast_to<TileSetAtlasSourceEditor::AtlasTileProxyObject>(get_edited_object());
+	ERR_FAIL_NULL(atlas_tile_proxy_object);
+	ERR_FAIL_COND(atlas_tile_proxy_object->get_edited_tiles().is_empty());
+
+	Ref<TileSetAtlasSource> tile_set_atlas_source = atlas_tile_proxy_object->get_edited_tile_set_atlas_source();
+	generic_tile_rectangle_editor->set_tile_set(Ref<TileSet>(tile_set_atlas_source->get_tile_set()));
+
+	// Set the background
+	Vector2i coords = atlas_tile_proxy_object->get_edited_tiles().front()->get().tile;
+	int alternative = atlas_tile_proxy_object->get_edited_tiles().front()->get().alternative;
+	TileData *tile_data = tile_set_atlas_source->get_tile_data(coords, alternative);
+	generic_tile_rectangle_editor->set_background(tile_set_atlas_source->get_texture(), tile_set_atlas_source->get_tile_texture_region(coords), tile_data->get_texture_origin(), tile_data->get_flip_h(), tile_data->get_flip_v(), tile_data->get_transpose(), tile_data->get_modulate());
+
+	// Reset the rectangles.
+	generic_tile_rectangle_editor->clear_rectangles();
+
+	if (!String(count_property).is_empty()) {
+		int count = get_edited_object()->get(count_property);
+		if (base_type.is_empty()) {
+			// Multiple array of vertices.
+			generic_tile_rectangle_editor->clear_rectangles();
+			for (int i = 0; i < count; i++) {
+				generic_tile_rectangle_editor->add_rectangle(get_edited_object()->get(vformat(element_pattern, i)));
+			}
+		}
+	}
+}
+
+void EditorPropertyTileRectangle::setup_single_mode(const StringName &p_property, const String &p_base_type) {
+	set_object_and_property(nullptr, p_property);
+	base_type = p_base_type;
+
+	generic_tile_rectangle_editor->set_multiple_rectangle_mode(false);
+}
+
+void EditorPropertyTileRectangle::setup_multiple_mode(const StringName &p_property, const StringName &p_count_property, const String &p_element_pattern, const String &p_base_type) {
+	set_object_and_property(nullptr, p_property);
+	count_property = p_count_property;
+	element_pattern = p_element_pattern;
+	base_type = p_base_type;
+
+	generic_tile_rectangle_editor->set_multiple_rectangle_mode(true);
+}
+
+EditorPropertyTileRectangle::EditorPropertyTileRectangle() {
+	// Setup the rectangle editor.
+	generic_tile_rectangle_editor = memnew(GenericTileRectangleIEditor);
+	generic_tile_rectangle_editor->set_use_undo_redo(false);
+	generic_tile_rectangle_editor->clear_rectangles();
+	add_child(generic_tile_rectangle_editor);
+	generic_tile_rectangle_editor->connect("rectangles_changed", callable_mp(this, &EditorPropertyTileRectangle::_rectangles_changed));
+
+	// Add all focussable children of generic_tile_rectangle_editor as focussable.
+	_add_focusable_children(generic_tile_rectangle_editor);
+}
+
 ////// EditorInspectorPluginTileData //////
 
 bool EditorInspectorPluginTileData::can_handle(Object *p_object) {
@@ -2913,21 +2999,21 @@ bool EditorInspectorPluginTileData::parse_property(Object *p_object, const Varia
 		// Physics layers.
 		int layer_index = components[0].trim_prefix("physics_layer_").to_int();
 		ERR_FAIL_COND_V(layer_index < 0, false);
-		if (components[1] == "polygons_count") {
-			EditorPropertyTilePolygon *ep = memnew(EditorPropertyTilePolygon);
-			ep->setup_multiple_mode(vformat("physics_layer_%d/polygons", layer_index), vformat("physics_layer_%d/polygons_count", layer_index), vformat("physics_layer_%d/polygon_%%d/points", layer_index), "");
+		if (components[1] == "rectangles_count") {
+			EditorPropertyTileRectangle *ep = memnew(EditorPropertyTileRectangle);
+			ep->setup_multiple_mode(vformat("physics_layer_%d/rectangles", layer_index), vformat("physics_layer_%d/rectangles_count", layer_index), vformat("physics_layer_%d/rectangle_%%d/data", layer_index), "");
 			Vector<String> properties;
 			properties.push_back(p_path);
-			int count = p_object->get(vformat("physics_layer_%d/polygons_count", layer_index));
+			int count = p_object->get(vformat("physics_layer_%d/rectangles_count", layer_index));
 			for (int i = 0; i < count; i++) {
-				properties.push_back(vformat(vformat("physics_layer_%d/polygon_%d/points", layer_index, i)));
+				properties.push_back(vformat(vformat("physics_layer_%d/rectangle_%d/data", layer_index, i)));
 			}
-			add_property_editor_for_multiple_properties("Polygons", properties, ep);
+			add_property_editor_for_multiple_properties("Rectangles", properties, ep);
 			return true;
-		} else if (components.size() == 3 && components[1].begins_with("polygon_") && components[1].trim_prefix("polygon_").is_valid_int()) {
-			int polygon_index = components[1].trim_prefix("polygon_").to_int();
-			ERR_FAIL_COND_V(polygon_index < 0, false);
-			if (components[2] == "points") {
+		} else if (components.size() == 3 && components[1].begins_with("rectangle_") && components[1].trim_prefix("rectangle_").is_valid_int()) {
+			int rectangle_index = components[1].trim_prefix("rectangle_").to_int();
+			ERR_FAIL_COND_V(rectangle_index < 0, false);
+			if (components[2] == "data") {
 				return true;
 			}
 		}
