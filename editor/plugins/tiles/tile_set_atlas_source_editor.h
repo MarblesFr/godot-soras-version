@@ -332,7 +332,7 @@ GDCLASS(EditorPropertyTileRectangle, EditorProperty);
 
 	void _add_focusable_children(Node *p_node);
 
-	GenericTileRectangleIEditor *generic_tile_rectangle_editor = nullptr;
+	GenericTileRectangleEditor *generic_tile_rectangle_editor = nullptr;
 	void _rectangles_changed();
 
 public:

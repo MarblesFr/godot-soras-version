@@ -2928,13 +2928,15 @@ void EditorPropertyTileRectangle::update_property() {
 	ERR_FAIL_COND(atlas_tile_proxy_object->get_edited_tiles().is_empty());
 
 	Ref<TileSetAtlasSource> tile_set_atlas_source = atlas_tile_proxy_object->get_edited_tile_set_atlas_source();
-	generic_tile_rectangle_editor->set_tile_set(Ref<TileSet>(tile_set_atlas_source->get_tile_set()));
+	Ref<TileSet> tile_set(tile_set_atlas_source->get_tile_set());
+
+	// Update the rectangle editor tile_set.
+	generic_tile_rectangle_editor->set_tile_set(tile_set);
 
 	// Set the background
 	Vector2i coords = atlas_tile_proxy_object->get_edited_tiles().front()->get().tile;
 	int alternative = atlas_tile_proxy_object->get_edited_tiles().front()->get().alternative;
-	TileData *tile_data = tile_set_atlas_source->get_tile_data(coords, alternative);
-	generic_tile_rectangle_editor->set_background(tile_set_atlas_source->get_texture(), tile_set_atlas_source->get_tile_texture_region(coords), tile_data->get_texture_origin(), tile_data->get_flip_h(), tile_data->get_flip_v(), tile_data->get_transpose(), tile_data->get_modulate());
+	generic_tile_rectangle_editor->set_background_tile(*tile_set_atlas_source, coords, alternative);
 
 	// Reset the rectangles.
 	generic_tile_rectangle_editor->clear_rectangles();
@@ -2969,7 +2971,7 @@ void EditorPropertyTileRectangle::setup_multiple_mode(const StringName &p_proper
 
 EditorPropertyTileRectangle::EditorPropertyTileRectangle() {
 	// Setup the rectangle editor.
-	generic_tile_rectangle_editor = memnew(GenericTileRectangleIEditor);
+	generic_tile_rectangle_editor = memnew(GenericTileRectangleEditor);
 	generic_tile_rectangle_editor->set_use_undo_redo(false);
 	generic_tile_rectangle_editor->clear_rectangles();
 	add_child(generic_tile_rectangle_editor);
