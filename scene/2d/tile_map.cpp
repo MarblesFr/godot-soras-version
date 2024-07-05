@@ -371,6 +371,22 @@ int TileMap::get_layer_z_index(int p_layer) const {
 	TILEMAP_CALL_FOR_LAYER_V(p_layer, 0, get_z_index);
 }
 
+void TileMap::set_layer_collision_enabled(int p_layer, bool p_enabled) {
+	TILEMAP_CALL_FOR_LAYER(p_layer, set_collision_enabled, p_enabled);
+}
+
+bool TileMap::is_layer_collision_enabled(int p_layer) const {
+	TILEMAP_CALL_FOR_LAYER_V(p_layer, false, is_collision_enabled);
+}
+
+void TileMap::set_layer_occlusion_enabled(int p_layer, bool p_enabled) {
+	TILEMAP_CALL_FOR_LAYER(p_layer, set_occlusion_enabled, p_enabled);
+}
+
+bool TileMap::is_layer_occlusion_enabled(int p_layer) const {
+	TILEMAP_CALL_FOR_LAYER_V(p_layer, false, is_occlusion_enabled);
+}
+
 void TileMap::set_layer_navigation_enabled(int p_layer, bool p_enabled) {
 	TILEMAP_CALL_FOR_LAYER(p_layer, set_navigation_enabled, p_enabled);
 }
@@ -904,6 +920,10 @@ void TileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_layer_y_sort_origin", "layer"), &TileMap::get_layer_y_sort_origin);
 	ClassDB::bind_method(D_METHOD("set_layer_z_index", "layer", "z_index"), &TileMap::set_layer_z_index);
 	ClassDB::bind_method(D_METHOD("get_layer_z_index", "layer"), &TileMap::get_layer_z_index);
+	ClassDB::bind_method(D_METHOD("set_layer_collision_enabled", "layer", "enabled"), &TileMap::set_layer_collision_enabled);
+	ClassDB::bind_method(D_METHOD("is_layer_collision_enabled", "layer"), &TileMap::is_layer_collision_enabled);
+	ClassDB::bind_method(D_METHOD("set_layer_occlusion_enabled", "layer", "enabled"), &TileMap::set_layer_occlusion_enabled);
+	ClassDB::bind_method(D_METHOD("is_layer_occlusion_enabled", "layer"), &TileMap::is_layer_occlusion_enabled);
 	ClassDB::bind_method(D_METHOD("set_layer_navigation_enabled", "layer", "enabled"), &TileMap::set_layer_navigation_enabled);
 	ClassDB::bind_method(D_METHOD("is_layer_navigation_enabled", "layer"), &TileMap::is_layer_navigation_enabled);
 	ClassDB::bind_method(D_METHOD("set_layer_navigation_map", "layer", "map"), &TileMap::set_layer_navigation_map);
@@ -994,6 +1014,8 @@ TileMap::TileMap() {
 		base_property_helper.register_property(PropertyInfo(Variant::BOOL, "y_sort_enabled"), defaults->is_y_sort_enabled(), &TileMap::set_layer_y_sort_enabled, &TileMap::is_layer_y_sort_enabled);
 		base_property_helper.register_property(PropertyInfo(Variant::INT, "y_sort_origin", PROPERTY_HINT_NONE, "suffix:px"), defaults->get_y_sort_origin(), &TileMap::set_layer_y_sort_origin, &TileMap::get_layer_y_sort_origin);
 		base_property_helper.register_property(PropertyInfo(Variant::INT, "z_index"), defaults->get_z_index(), &TileMap::set_layer_z_index, &TileMap::get_layer_z_index);
+		base_property_helper.register_property(PropertyInfo(Variant::BOOL, "collision_enabled"), defaults->is_collision_enabled(), &TileMap::set_layer_collision_enabled, &TileMap::is_layer_collision_enabled);
+		base_property_helper.register_property(PropertyInfo(Variant::BOOL, "occlusion_enabled"), defaults->is_occlusion_enabled(), &TileMap::set_layer_occlusion_enabled, &TileMap::is_layer_occlusion_enabled);
 		base_property_helper.register_property(PropertyInfo(Variant::BOOL, "navigation_enabled"), defaults->is_navigation_enabled(), &TileMap::set_layer_navigation_enabled, &TileMap::is_layer_navigation_enabled);
 		base_property_helper.register_property(PropertyInfo(Variant::PACKED_INT32_ARRAY, "tile_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), Vector<int>(), &TileMap::_set_layer_tile_data, &TileMap::_get_tile_map_data_using_compatibility_format);
 

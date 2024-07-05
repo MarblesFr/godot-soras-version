@@ -264,6 +264,20 @@
 				If [param layer] is negative, the layers are accessed from the last one.
 			</description>
 		</method>
+		<method name="is_layer_collision_enabled" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="layer" type="int" />
+			<description>
+				Returns if a layer's built-in collision is enabled.
+			</description>
+		</method>
+		<method name="is_layer_occlusion_enabled" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="layer" type="int" />
+			<description>
+				Returns if a layer's built-in light occlusion is enabled.
+			</description>
+		</method>
 		<method name="is_layer_navigation_enabled" qualifiers="const">
 			<return type="bool" />
 			<param index="0" name="layer" type="int" />
@@ -397,6 +411,22 @@
 			<description>
 				Sets a layer's name. This is mostly useful in the editor.
 				If [param layer] is negative, the layers are accessed from the last one.
+			</description>
+		</method>
+		<method name="set_layer_collision_enabled">
+			<return type="void" />
+			<param index="0" name="layer" type="int" />
+			<param index="1" name="enabled" type="bool" />
+			<description>
+				Enables or disables a layer's collisions.
+			</description>
+		</method>
+		<method name="set_layer_occlusion_enabled">
+			<return type="void" />
+			<param index="0" name="layer" type="int" />
+			<param index="1" name="enabled" type="bool" />
+			<description>
+				Enables or disables a layer's light occlusion.
 			</description>
 		</method>
 		<method name="set_layer_navigation_enabled">

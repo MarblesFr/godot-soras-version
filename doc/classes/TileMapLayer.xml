@@ -257,6 +257,9 @@
 		<member name="enabled" type="bool" setter="set_enabled" getter="is_enabled" default="true">
 			If [code]false[/code], disables this [TileMapLayer] completely (rendering, collision, navigation, scene tiles, etc.)
 		</member>
+		<member name="occlusion_enabled" type="bool" setter="set_occlusion_enabled" getter="is_occlusion_enabled" default="true">
+			Enable or disable light occlusion.
+		</member>
 		<member name="navigation_enabled" type="bool" setter="set_navigation_enabled" getter="is_navigation_enabled" default="true">
 			If [code]true[/code], navigation regions are enabled.
 		</member>

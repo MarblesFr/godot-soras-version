@@ -143,6 +143,10 @@ public:
 	int get_layer_y_sort_origin(int p_layer) const;
 	void set_layer_z_index(int p_layer, int p_z_index);
 	int get_layer_z_index(int p_layer) const;
+	void set_layer_collision_enabled(int p_layer, bool p_enabled);
+	bool is_layer_collision_enabled(int p_layer) const;
+	void set_layer_occlusion_enabled(int p_layer, bool p_enabled);
+	bool is_layer_occlusion_enabled(int p_layer) const;
 	void set_layer_navigation_enabled(int p_layer, bool p_enabled);
 	bool is_layer_navigation_enabled(int p_layer) const;
 	void set_layer_navigation_map(int p_layer, RID p_map);
