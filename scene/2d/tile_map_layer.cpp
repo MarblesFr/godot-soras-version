@@ -416,6 +416,7 @@ void TileMapLayer::_rendering_update(bool p_force_cleanup) {
 		for (KeyValue<Vector2i, CellData> &kv : tile_map_layer_data) {
 			_rendering_occluders_clear_cell(kv.value);
 		}
+		_rendering_was_cleaned_up = true;
 	} else {
 		if (_rendering_was_cleaned_up || dirty.flags[DIRTY_FLAGS_TILE_SET]) {
 			// Update all cells.
