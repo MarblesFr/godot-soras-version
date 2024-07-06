@@ -416,7 +416,6 @@ void TileMapLayer::_rendering_update(bool p_force_cleanup) {
 		for (KeyValue<Vector2i, CellData> &kv : tile_map_layer_data) {
 			_rendering_occluders_clear_cell(kv.value);
 		}
-		_rendering_was_cleaned_up = true;
 	} else {
 		if (_rendering_was_cleaned_up || dirty.flags[DIRTY_FLAGS_TILE_SET]) {
 			// Update all cells.
@@ -434,7 +433,7 @@ void TileMapLayer::_rendering_update(bool p_force_cleanup) {
 
 	// -----------
 	// Mark the rendering state as up to date.
-	_rendering_was_cleaned_up = forced_cleanup;
+	_rendering_was_cleaned_up = forced_cleanup || !occlusion_enabled;
 }
 
 void TileMapLayer::_rendering_notification(int p_what) {
