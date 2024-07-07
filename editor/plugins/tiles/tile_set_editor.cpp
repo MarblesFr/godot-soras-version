@@ -245,12 +245,14 @@ void TileSetEditor::_source_selected(int p_source_index) {
 
 	// Update the selected source.
 	sources_delete_button->set_disabled(p_source_index < 0 || read_only);
+	bool duplicate_disabled = true;
 
 	if (p_source_index >= 0) {
 		int source_id = sources_list->get_item_metadata(p_source_index);
 		TileSetAtlasSource *atlas_source = Object::cast_to<TileSetAtlasSource>(*tile_set->get_source(source_id));
 		TileSetScenesCollectionSource *scenes_collection_source = Object::cast_to<TileSetScenesCollectionSource>(*tile_set->get_source(source_id));
 		if (atlas_source) {
+			duplicate_disabled = false;
 			no_source_selected_label->hide();
 			tile_set_atlas_source_editor->edit(*tile_set, atlas_source, source_id);
 			tile_set_atlas_source_editor->show();
@@ -270,6 +272,7 @@ void TileSetEditor::_source_selected(int p_source_index) {
 		tile_set_atlas_source_editor->hide();
 		tile_set_scenes_collection_source_editor->hide();
 	}
+	sources_duplicate_button->set_disabled(duplicate_disabled);
 }
 
 void TileSetEditor::_source_delete_pressed() {
@@ -288,6 +291,74 @@ void TileSetEditor::_source_delete_pressed() {
 	undo_redo->commit_action();
 
 	_update_sources_list();
+}
+
+void TileSetEditor::_source_duplicate_pressed() {
+	ERR_FAIL_COND(!tile_set.is_valid());
+
+	// Update the selected source.
+	int to_duplicate = sources_list->get_item_metadata(sources_list->get_current());
+
+	TileSetAtlasSource *atlas_source = Object::cast_to<TileSetAtlasSource>(*tile_set->get_source(to_duplicate));
+
+	// Remove the source.
+
+	Ref<TileSetAtlasSource> duplicated;
+	duplicated.instantiate();
+
+	duplicated->set_name(atlas_source->get_name() + " (Copy)");
+	duplicated->set_texture(atlas_source->get_texture());
+	duplicated->set_texture_region_size(atlas_source->get_texture_region_size());
+
+	// Copy the tiles to the duplicated TileSetAtlasSource.
+	for (int tile_index = 0; tile_index < atlas_source->get_tiles_count(); tile_index++) {
+		Vector2i tile_id = atlas_source->get_tile_id(tile_index);
+		// Create tiles and alternatives, then copy their properties.
+		for (int alternative_index = 0; alternative_index < atlas_source->get_alternative_tiles_count(tile_id); alternative_index++) {
+			int alternative_id = atlas_source->get_alternative_tile_id(tile_id, alternative_index);
+			int changed_id = -1;
+			if (alternative_id == 0) {
+				duplicated->create_tile(tile_id, atlas_source->get_tile_size_in_atlas(tile_id));
+				int count = atlas_source->get_tile_animation_frames_count(tile_id);
+				duplicated->set_tile_animation_frames_count(tile_id, count);
+				for (int i = 0; i < count; i++) {
+					duplicated->set_tile_animation_frame_duration(tile_id, i, atlas_source->get_tile_animation_frame_duration(tile_id, i));
+				}
+				duplicated->set_tile_animation_speed(tile_id, atlas_source->get_tile_animation_speed(tile_id));
+				duplicated->set_tile_animation_mode(tile_id, atlas_source->get_tile_animation_mode(tile_id));
+			} else {
+				changed_id = duplicated->create_alternative_tile(tile_id, alternative_index);
+			}
+
+			// Copy the properties.
+			TileData *src_tile_data = atlas_source->get_tile_data(tile_id, alternative_id);
+			List<PropertyInfo> properties;
+			src_tile_data->get_property_list(&properties);
+
+			TileData *dst_tile_data = duplicated->get_tile_data(tile_id, changed_id == -1 ? alternative_id : changed_id);
+			for (PropertyInfo property : properties) {
+				if (!(property.usage & PROPERTY_USAGE_STORAGE)) {
+					continue;
+				}
+				Variant value = src_tile_data->get(property.name);
+				Variant default_value = ClassDB::class_get_default_property_value("TileData", property.name);
+				if (default_value.get_type() != Variant::NIL && bool(Variant::evaluate(Variant::OP_EQUAL, value, default_value))) {
+					continue;
+				}
+				dst_tile_data->set(property.name, value);
+			}
+		}
+	}
+
+	ERR_FAIL_COND(!duplicated.is_valid());
+
+	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
+	undo_redo->create_action(TTR("Duplicated TileSetAtlasSource"));
+	int next_id = tile_set->get_next_source_id();
+	undo_redo->add_do_method(*tile_set, "add_source", duplicated, next_id);
+	undo_redo->add_undo_method(*tile_set, "remove_source", next_id);
+
+	undo_redo->commit_action();
 }
 
 void TileSetEditor::_source_add_id_pressed(int p_id_pressed) {
@@ -367,6 +438,7 @@ void TileSetEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
 			sources_delete_button->set_icon(get_editor_theme_icon(SNAME("Remove")));
+			sources_duplicate_button->set_icon(get_editor_theme_icon(SNAME("Duplicate")));
 			sources_add_button->set_icon(get_editor_theme_icon(SNAME("Add")));
 			source_sort_button->set_icon(get_editor_theme_icon(SNAME("Sort")));
 			sources_advanced_menu_button->set_icon(get_editor_theme_icon(SNAME("GuiTabMenuHl")));
@@ -878,6 +950,12 @@ TileSetEditor::TileSetEditor() {
 	sources_delete_button->set_disabled(true);
 	sources_delete_button->connect(SceneStringName(pressed), callable_mp(this, &TileSetEditor::_source_delete_pressed));
 	sources_bottom_actions->add_child(sources_delete_button);
+
+	sources_duplicate_button = memnew(Button);
+	sources_duplicate_button->set_theme_type_variation("FlatButton");
+	sources_duplicate_button->set_disabled(true);
+	sources_duplicate_button->connect(SceneStringName(pressed), callable_mp(this, &TileSetEditor::_source_duplicate_pressed));
+	sources_bottom_actions->add_child(sources_duplicate_button);
 
 	sources_add_button = memnew(MenuButton);
 	sources_add_button->set_flat(false);

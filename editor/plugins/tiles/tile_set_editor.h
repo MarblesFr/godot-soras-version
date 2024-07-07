@@ -74,6 +74,7 @@ private:
 
 	// Sources management.
 	Button *sources_delete_button = nullptr;
+	Button *sources_duplicate_button = nullptr;
 	MenuButton *sources_add_button = nullptr;
 	MenuButton *source_sort_button = nullptr;
 	MenuButton *sources_advanced_menu_button = nullptr;
@@ -81,6 +82,7 @@ private:
 	Ref<Texture2D> missing_texture_texture;
 	void _source_selected(int p_source_index);
 	void _source_delete_pressed();
+	void _source_duplicate_pressed();
 	void _source_add_id_pressed(int p_id_pressed);
 	void _sources_advanced_menu_id_pressed(int p_id_pressed);
 	void _set_source_sort(int p_sort);
