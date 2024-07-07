@@ -43,7 +43,6 @@ void CollisionShape2D::_update_in_shape_owner(bool p_xform_only) {
 		return;
 	}
 	collision_object->shape_owner_set_disabled(owner_id, disabled);
-	collision_object->shape_owner_set_one_way_collision(owner_id, one_way_collision);
 }
 
 Color CollisionShape2D::_get_default_debug_color() const {
@@ -109,27 +108,6 @@ void CollisionShape2D::_notification(int p_what) {
 
 			rect = shape->get_rect();
 			rect = rect.grow(3);
-
-			if (one_way_collision) {
-				// Draw an arrow indicating the one-way collision direction
-				draw_col = debug_color.inverted();
-				if (disabled) {
-					draw_col = draw_col.darkened(0.25);
-				}
-				Vector2 line_to(0, 20);
-				draw_line(Vector2(), line_to, draw_col, 2);
-				real_t tsize = 8;
-
-				Vector<Vector2> pts{
-					line_to + Vector2(0, tsize),
-					line_to + Vector2(Math_SQRT12 * tsize, 0),
-					line_to + Vector2(-Math_SQRT12 * tsize, 0)
-				};
-
-				Vector<Color> cols{ draw_col, draw_col, draw_col };
-
-				draw_primitive(pts, cols, Vector<Vector2>());
-			}
 		} break;
 	}
 }
@@ -180,9 +158,6 @@ PackedStringArray CollisionShape2D::get_configuration_warnings() const {
 	if (!shape.is_valid()) {
 		warnings.push_back(RTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!"));
 	}
-	if (one_way_collision && Object::cast_to<Area2D>(col_object)) {
-		warnings.push_back(RTR("The One Way Collision property will be ignored when the collision object is an Area2D."));
-	}
 
 	return warnings;
 }
@@ -197,19 +172,6 @@ void CollisionShape2D::set_disabled(bool p_disabled) {
 
 bool CollisionShape2D::is_disabled() const {
 	return disabled;
-}
-
-void CollisionShape2D::set_one_way_collision(bool p_enable) {
-	one_way_collision = p_enable;
-	queue_redraw();
-	if (collision_object) {
-		collision_object->shape_owner_set_one_way_collision(owner_id, p_enable);
-	}
-	update_configuration_warnings();
-}
-
-bool CollisionShape2D::is_one_way_collision_enabled() const {
-	return one_way_collision;
 }
 
 void CollisionShape2D::set_debug_color(const Color &p_color) {
@@ -251,14 +213,11 @@ void CollisionShape2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_shape"), &CollisionShape2D::get_shape);
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &CollisionShape2D::set_disabled);
 	ClassDB::bind_method(D_METHOD("is_disabled"), &CollisionShape2D::is_disabled);
-	ClassDB::bind_method(D_METHOD("set_one_way_collision", "enabled"), &CollisionShape2D::set_one_way_collision);
-	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &CollisionShape2D::is_one_way_collision_enabled);
 	ClassDB::bind_method(D_METHOD("set_debug_color", "color"), &CollisionShape2D::set_debug_color);
 	ClassDB::bind_method(D_METHOD("get_debug_color"), &CollisionShape2D::get_debug_color);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", "get_shape");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "debug_color"), "set_debug_color", "get_debug_color");
 	// Default value depends on a project setting, override for doc generation purposes.
 	ADD_PROPERTY_DEFAULT("debug_color", Color());

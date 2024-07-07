@@ -6311,17 +6311,15 @@ Vector<Vector2i> TileData::get_collision_rectangle_data(int p_layer_id, int p_re
 	return data;
 }
 
-void TileData::set_collision_rectangle_one_way(int p_layer_id, int p_rectangle_index, bool p_one_way) {
+void TileData::set_collision_one_way(int p_layer_id, bool p_one_way) {
 	ERR_FAIL_INDEX(p_layer_id, physics.size());
-	ERR_FAIL_INDEX(p_rectangle_index, physics[p_layer_id].rectangles.size());
-	physics.write[p_layer_id].rectangles.write[p_rectangle_index].one_way = p_one_way;
+	physics.write[p_layer_id].one_way = p_one_way;
 	emit_signal(CoreStringName(changed));
 }
 
-bool TileData::is_collision_rectangle_one_way(int p_layer_id, int p_rectangle_index) const {
+bool TileData::is_collision_one_way(int p_layer_id) const {
 	ERR_FAIL_INDEX_V(p_layer_id, physics.size(), false);
-	ERR_FAIL_INDEX_V(p_rectangle_index, physics[p_layer_id].rectangles.size(), false);
-	return physics[p_layer_id].rectangles[p_rectangle_index].one_way;
+	return physics[p_layer_id].one_way;
 }
 
 Ref<RectangleShape2D> TileData::get_collision_rectangle_shape(int p_layer_id, int p_rectangle_index, bool p_flip_h, bool p_flip_v, bool p_transpose) const {
@@ -6614,6 +6612,9 @@ bool TileData::_set(const StringName &p_name, const Variant &p_value) {
 			} else if (components[1] == "angular_velocity") {
 				set_constant_angular_velocity(layer_index, p_value);
 				return true;
+			} else if (components[1] == "one_way") {
+				set_collision_one_way(layer_index, p_value);
+				return true;
 			} else if (components[1] == "rectangles_count") {
 				if (p_value.get_type() != Variant::INT) {
 					return false;
@@ -6625,7 +6626,7 @@ bool TileData::_set(const StringName &p_name, const Variant &p_value) {
 			int rectangle_index = components[1].trim_prefix("rectangle_").to_int();
 			ERR_FAIL_COND_V(rectangle_index < 0, false);
 
-			if (components[2] == "data" || components[2] == "one_way") {
+			if (components[2] == "data") {
 				if (layer_index >= physics.size()) {
 					if (tile_set) {
 						return false;
@@ -6642,9 +6643,6 @@ bool TileData::_set(const StringName &p_name, const Variant &p_value) {
 				Vector<Vector2i> arr = p_value;
 				ERR_FAIL_COND_V(arr.size() != 2, false);
 				set_collision_rectangle_data(layer_index, rectangle_index, arr);
-				return true;
-			} else if (components[2] == "one_way") {
-				set_collision_rectangle_one_way(layer_index, rectangle_index, p_value);
 				return true;
 			}
 		}
@@ -6732,6 +6730,9 @@ bool TileData::_get(const StringName &p_name, Variant &r_ret) const {
 				} else if (components[1] == "angular_velocity") {
 					r_ret = get_constant_angular_velocity(layer_index);
 					return true;
+				} else if (components[1] == "one_way") {
+					r_ret = is_collision_one_way(layer_index);
+					return true;
 				} else if (components[1] == "rectangles_count") {
 					r_ret = get_collision_rectangles_count(layer_index);
 					return true;
@@ -6744,9 +6745,6 @@ bool TileData::_get(const StringName &p_name, Variant &r_ret) const {
 				}
 				if (components[2] == "data") {
 					r_ret = get_collision_rectangle_data(layer_index, rectangle_index);
-					return true;
-				} else if (components[2] == "one_way") {
-					r_ret = is_collision_rectangle_one_way(layer_index, rectangle_index);
 					return true;
 				}
 			}
@@ -6817,19 +6815,19 @@ void TileData::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(property_info);
 
+			// physics_layer_%d/one_way
+			property_info = PropertyInfo(Variant::BOOL, vformat("physics_layer_%d/%s", i, PNAME("one_way")), PROPERTY_HINT_NONE);
+			if (physics[i].one_way == 0.0) {
+				property_info.usage ^= PROPERTY_USAGE_STORAGE;
+			}
+			p_list->push_back(property_info);
+
 			p_list->push_back(PropertyInfo(Variant::INT, vformat("physics_layer_%d/%s", i, PNAME("rectangles_count")), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 
 			for (int j = 0; j < physics[i].rectangles.size(); j++) {
 				// physics_layer_%d/points
 				property_info = PropertyInfo(Variant::ARRAY, vformat("physics_layer_%d/rectangle_%d/%s", i, j, PNAME("data")), PROPERTY_HINT_ARRAY_TYPE, "Vector2i", PROPERTY_USAGE_DEFAULT);
 				if (physics[i].rectangles[j].shape.is_null()) {
-					property_info.usage ^= PROPERTY_USAGE_STORAGE;
-				}
-				p_list->push_back(property_info);
-
-				// physics_layer_%d/rectangle_%d/one_way
-				property_info = PropertyInfo(Variant::BOOL, vformat("physics_layer_%d/rectangle_%d/%s", i, j, PNAME("one_way")));
-				if (physics[i].rectangles[j].one_way == false) {
 					property_info.usage ^= PROPERTY_USAGE_STORAGE;
 				}
 				p_list->push_back(property_info);
@@ -6903,14 +6901,14 @@ void TileData::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constant_linear_velocity", "layer_id"), &TileData::get_constant_linear_velocity);
 	ClassDB::bind_method(D_METHOD("set_constant_angular_velocity", "layer_id", "velocity"), &TileData::set_constant_angular_velocity);
 	ClassDB::bind_method(D_METHOD("get_constant_angular_velocity", "layer_id"), &TileData::get_constant_angular_velocity);
+	ClassDB::bind_method(D_METHOD("set_collision_one_way", "layer_id", "one_way"), &TileData::set_collision_one_way);
+	ClassDB::bind_method(D_METHOD("is_collision_one_way", "layer_id"), &TileData::is_collision_one_way);
 	ClassDB::bind_method(D_METHOD("set_collision_rectangles_count", "layer_id", "rectangles_count"), &TileData::set_collision_rectangles_count);
 	ClassDB::bind_method(D_METHOD("get_collision_rectangles_count", "layer_id"), &TileData::get_collision_rectangles_count);
 	ClassDB::bind_method(D_METHOD("add_collision_rectangle", "layer_id"), &TileData::add_collision_rectangle);
 	ClassDB::bind_method(D_METHOD("remove_collision_rectangle", "layer_id", "rectangle_index"), &TileData::remove_collision_rectangle);
 	ClassDB::bind_method(D_METHOD("set_collision_rectangle_data", "layer_id", "rectangle_index", "p_rectangle"), &TileData::set_collision_rectangle_data);
 	ClassDB::bind_method(D_METHOD("get_collision_rectangle_data", "layer_id", "rectangle_index"), &TileData::get_collision_rectangle_data);
-	ClassDB::bind_method(D_METHOD("set_collision_rectangle_one_way", "layer_id", "rectangle_index", "one_way"), &TileData::set_collision_rectangle_one_way);
-	ClassDB::bind_method(D_METHOD("is_collision_rectangle_one_way", "layer_id", "rectangle_index"), &TileData::is_collision_rectangle_one_way);
 
 	// Terrain
 	ClassDB::bind_method(D_METHOD("set_terrain_set", "terrain_set"), &TileData::set_terrain_set);

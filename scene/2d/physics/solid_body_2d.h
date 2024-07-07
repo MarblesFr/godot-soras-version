@@ -37,9 +37,17 @@
 class SolidBody2D : public PhysicsBody2D {
 	GDCLASS(SolidBody2D, PhysicsBody2D);
 
+	bool one_way_collision = false;
+
+protected:
+	static void _bind_methods();
+
 public:
 	bool move_h_exact(int32_t move_h, const Callable &collisionCallback) override;
 	bool move_v_exact(int32_t move_v, const Callable &collisionCallback) override;
+
+	void set_one_way_collision(bool p_enable);
+	bool is_one_way_collision_enabled() const;
 
 	SolidBody2D();
 };

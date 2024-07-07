@@ -46,7 +46,8 @@ void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_position_delta"), &PhysicsBody2D::get_position_delta);
 
 	ClassDB::bind_method(D_METHOD("on_ground"), &PhysicsBody2D::on_ground);
-	ClassDB::bind_method(D_METHOD("collides_at", "delta", "result"), &PhysicsBody2D::_collides_at, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("collides_at", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("collides_at_outside", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at_outside, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
 
 
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position_delta", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_position_delta", "get_position_delta");
@@ -115,21 +116,34 @@ Vector2 PhysicsBody2D::get_position_delta() const {
 	return position_delta;
 }
 
-bool PhysicsBody2D::collides_at(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result) {
-	return PhysicsServer2D::get_singleton()->body_collides_at(get_rid(), get_global_transform_i(), p_delta, p_result);
+bool PhysicsBody2D::collides_at(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result, const int16_t p_collision_type_filter) {
+	return PhysicsServer2D::get_singleton()->body_collides_at(get_rid(), get_global_transform_i(), p_delta, p_result, p_collision_type_filter);
 }
 
-bool PhysicsBody2D::_collides_at(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &p_result) {
+bool PhysicsBody2D::_collides_at(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &p_result, const int16_t p_collision_type_filter) {
 	PhysicsServer2D::CollisionResult *result_ptr = nullptr;
 	if (p_result.is_valid()) {
 		result_ptr = p_result->get_result_ptr();
 	}
 
-	return collides_at(p_delta, result_ptr);
+	return collides_at(p_delta, result_ptr, p_collision_type_filter);
+}
+
+bool PhysicsBody2D::collides_at_outside(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result, const int16_t p_collision_type_filter) {
+	return !collides_at(Vector2i(0, 0), p_result) && collides_at(p_delta, p_result, p_collision_type_filter);
+}
+
+bool PhysicsBody2D::_collides_at_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &p_result, const int16_t p_collision_type_filter) {
+	PhysicsServer2D::CollisionResult *result_ptr = nullptr;
+	if (p_result.is_valid()) {
+		result_ptr = p_result->get_result_ptr();
+	}
+
+	return collides_at_outside(p_delta, result_ptr, p_collision_type_filter);
 }
 
 bool PhysicsBody2D::on_ground() {
-	return collides_at(Vector2i(0, 1));
+	return collides_at(Vector2i(0, 1)) || collides_at_outside(Vector2i(0, 1), nullptr, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
 }
 
 TypedArray<PhysicsBody2D> PhysicsBody2D::get_collision_exceptions() {

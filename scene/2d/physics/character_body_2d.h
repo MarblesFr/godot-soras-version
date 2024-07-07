@@ -38,12 +38,19 @@
 class CharacterBody2D : public PhysicsBody2D {
 	GDCLASS(CharacterBody2D, PhysicsBody2D);
 
+	bool ignores_one_way = false;
+
 protected:
 	static void _bind_methods();
 
 public:
 	bool move_h_exact(int32_t p_amount, const Callable &p_callback) override;
 	bool move_v_exact(int32_t p_amount, const Callable &p_callback) override;
+
+	bool on_ground() override;
+
+	void set_ignores_one_way(bool p_enable);
+	bool is_ignores_one_way_enabled() const;
 
 	bool _is_riding(const RID &p_solid);
 	void _squish();

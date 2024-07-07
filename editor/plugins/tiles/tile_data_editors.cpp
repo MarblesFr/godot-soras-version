@@ -2350,48 +2350,18 @@ void TileDataCollisionEditor::_property_selected(const StringName &p_path, int p
 }
 
 void TileDataCollisionEditor::_rectangles_changed() {
-	// Update the dummy object properties and their editors.
-	for (int i = 0; i < rectangle_editor->get_rectangle_count(); i++) {
-		StringName one_way_property = vformat("rectangle_%d_one_way", i);
-
-		if (!dummy_object->has_dummy_property(one_way_property)) {
-			dummy_object->add_dummy_property(one_way_property);
-			dummy_object->set(one_way_property, false);
-		}
-
-		if (!property_editors.has(one_way_property)) {
-			EditorProperty *one_way_property_editor = EditorInspectorDefaultPlugin::get_editor_for_property(dummy_object, Variant::BOOL, one_way_property, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT);
-			one_way_property_editor->set_object_and_property(dummy_object, one_way_property);
-			one_way_property_editor->set_label(one_way_property);
-			one_way_property_editor->connect("property_changed", callable_mp(this, &TileDataCollisionEditor::_property_value_changed).unbind(1));
-			one_way_property_editor->connect("selected", callable_mp(this, &TileDataCollisionEditor::_property_selected));
-			one_way_property_editor->set_tooltip_text(one_way_property_editor->get_edited_property());
-			one_way_property_editor->update_property();
-			add_child(one_way_property_editor);
-			property_editors[one_way_property] = one_way_property_editor;
-		}
-	}
-
-	// Remove unneeded properties and their editors.
-	for (int i = rectangle_editor->get_rectangle_count(); dummy_object->has_dummy_property(vformat("rectangle_%d_one_way", i)); i++) {
-		dummy_object->remove_dummy_property(vformat("rectangle_%d_one_way", i));
-	}
-	for (int i = rectangle_editor->get_rectangle_count(); property_editors.has(vformat("rectangle_%d_one_way", i)); i++) {
-		property_editors[vformat("rectangle_%d_one_way", i)]->queue_free();
-		property_editors.erase(vformat("rectangle_%d_one_way", i));
-	}
 }
 
 Variant TileDataCollisionEditor::_get_painted_value() {
 	Dictionary dict;
 	dict["linear_velocity"] = dummy_object->get("linear_velocity");
 	dict["angular_velocity"] = dummy_object->get("angular_velocity");
+	dict["one_way"] = dummy_object->get("one_way");
 	Array array;
 	for (int i = 0; i < rectangle_editor->get_rectangle_count(); i++) {
 		ERR_FAIL_COND_V(rectangle_editor->get_rectangle(i).size() != 2, Variant());
 		Dictionary rectangle_dict;
 		rectangle_dict["data"] = rectangle_editor->get_rectangle(i);
-		rectangle_dict["one_way"] = dummy_object->get(vformat("rectangle_%d_one_way", i));
 		array.push_back(rectangle_dict);
 	}
 	dict["rectangles"] = array;
@@ -2414,9 +2384,7 @@ void TileDataCollisionEditor::_set_painted_value(TileSetAtlasSource *p_tile_set_
 	_rectangles_changed();
 	dummy_object->set("linear_velocity", tile_data->get_constant_linear_velocity(physics_layer));
 	dummy_object->set("angular_velocity", tile_data->get_constant_angular_velocity(physics_layer));
-	for (int i = 0; i < tile_data->get_collision_rectangles_count(physics_layer); i++) {
-		dummy_object->set(vformat("rectangle_%d_one_way", i), tile_data->is_collision_rectangle_one_way(physics_layer, i));
-	}
+	dummy_object->set("one_way", tile_data->is_collision_one_way(physics_layer));
 	for (const KeyValue<StringName, EditorProperty *> &E : property_editors) {
 		E.value->update_property();
 	}
@@ -2431,12 +2399,12 @@ void TileDataCollisionEditor::_set_value(TileSetAtlasSource *p_tile_set_atlas_so
 	Dictionary dict = p_value;
 	tile_data->set_constant_linear_velocity(physics_layer, dict["linear_velocity"]);
 	tile_data->set_constant_angular_velocity(physics_layer, dict["angular_velocity"]);
+	tile_data->set_collision_one_way(physics_layer, dict["one_way"]);
 	Array array = dict["rectangles"];
 	tile_data->set_collision_rectangles_count(physics_layer, array.size());
 	for (int i = 0; i < array.size(); i++) {
 		Dictionary rectangle_dict = array[i];
 		tile_data->set_collision_rectangle_data(physics_layer, i, rectangle_dict["data"]);
-		tile_data->set_collision_rectangle_one_way(physics_layer, i, rectangle_dict["one_way"]);
 	}
 
 	rectangle_editor->set_background_tile(p_tile_set_atlas_source, p_coords, p_alternative_tile);
@@ -2449,11 +2417,11 @@ Variant TileDataCollisionEditor::_get_value(TileSetAtlasSource *p_tile_set_atlas
 	Dictionary dict;
 	dict["linear_velocity"] = tile_data->get_constant_linear_velocity(physics_layer);
 	dict["angular_velocity"] = tile_data->get_constant_angular_velocity(physics_layer);
+	dict["one_way"] = tile_data->is_collision_one_way(physics_layer);
 	Array array;
 	for (int i = 0; i < tile_data->get_collision_rectangles_count(physics_layer); i++) {
 		Dictionary rectangle_dict;
 		rectangle_dict["data"] = tile_data->get_collision_rectangle_data(physics_layer, i);
-		rectangle_dict["one_way"] = tile_data->is_collision_rectangle_one_way(physics_layer, i);
 		array.push_back(rectangle_dict);
 	}
 	dict["rectangles"] = array;
@@ -2469,24 +2437,22 @@ void TileDataCollisionEditor::_setup_undo_redo_action(TileSetAtlasSource *p_tile
 		Dictionary old_dict = E.value;
 		undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/linear_velocity", coords.x, coords.y, E.key.alternative_tile, physics_layer), old_dict["linear_velocity"]);
 		undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/angular_velocity", coords.x, coords.y, E.key.alternative_tile, physics_layer), old_dict["angular_velocity"]);
+		undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/one_way", coords.x, coords.y, E.key.alternative_tile, physics_layer), old_dict["one_way"]);
 		Array old_rectangle_array = old_dict["rectangles"];
 		undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangles_count", coords.x, coords.y, E.key.alternative_tile, physics_layer), old_rectangle_array.size());
 		for (int i = 0; i < old_rectangle_array.size(); i++) {
 			Dictionary rectangle_dict = old_rectangle_array[i];
 			undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/data", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["data"]);
-			undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/one_way", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["one_way"]);
-			undo_redo->add_undo_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/one_way_margin", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["one_way_margin"]);
 		}
 
 		undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/linear_velocity", coords.x, coords.y, E.key.alternative_tile, physics_layer), new_dict["linear_velocity"]);
 		undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/angular_velocity", coords.x, coords.y, E.key.alternative_tile, physics_layer), new_dict["angular_velocity"]);
+		undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/one_way", coords.x, coords.y, E.key.alternative_tile, physics_layer), new_dict["one_way"]);
 		Array new_rectangle_array = new_dict["rectangles"];
 		undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangles_count", coords.x, coords.y, E.key.alternative_tile, physics_layer), new_rectangle_array.size());
 		for (int i = 0; i < new_rectangle_array.size(); i++) {
 			Dictionary rectangle_dict = new_rectangle_array[i];
 			undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/data", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["data"]);
-			undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/one_way", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["one_way"]);
-			undo_redo->add_do_property(p_tile_set_atlas_source, vformat("%d:%d/%d/physics_layer_%d/rectangle_%d/one_way_margin", coords.x, coords.y, E.key.alternative_tile, physics_layer, i), rectangle_dict["one_way_margin"]);
 		}
 	}
 }
@@ -2560,26 +2526,11 @@ void TileDataCollisionEditor::draw_over_tile(CanvasItem *p_canvas_item, Transfor
 
 	RenderingServer::get_singleton()->canvas_item_add_set_transform(p_canvas_item->get_canvas_item(), p_transform);
 
-	Ref<Texture2D> one_way_icon = get_editor_theme_icon(SNAME("OneWayTile"));
 	for (int i = 0; i < tile_data->get_collision_rectangles_count(physics_layer); i++) {
 		Vector<Vector2i> rectangle = tile_data->get_collision_rectangle_data(physics_layer, i);
 
 		Vector<Vector2i> polygon = _rectangle_to_polygon(rectangle[0], rectangle[1]);
 		p_canvas_item->draw_polygon_i(polygon, color);
-
-		if (tile_data->is_collision_rectangle_one_way(physics_layer, i)) {
-			PackedVector2Array uvs;
-			uvs.resize(polygon.size());
-			Vector2 size_1 = Vector2(1, 1) / tile_set->get_tile_size();
-
-			for (int j = 0; j < polygon.size(); j++) {
-				uvs.write[j] = polygon[j] * size_1 + Vector2(0.5, 0.5);
-			}
-
-			Vector<Color> color2;
-			color2.push_back(Color(1, 1, 1, 0.4));
-			p_canvas_item->draw_polygon_i(polygon, color2, uvs, one_way_icon);
-		}
 	}
 
 	RenderingServer::get_singleton()->canvas_item_add_set_transform(p_canvas_item->get_canvas_item(), Transform2D());

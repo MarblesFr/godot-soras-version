@@ -2141,7 +2141,6 @@ void TileSetAtlasSourceEditor::_undo_redo_inspector_callback(Object *p_undo_redo
 			if (new_rectangles_count < old_rectangles_count) {
 				for (int i = new_rectangles_count; i < old_rectangles_count; i++) {
 					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/rectangle_%d/data", layer_index, i));
-					ADD_UNDO(tile_data_proxy, vformat("physics_layer_%d/rectangle_%d/one_way", layer_index, i));
 				}
 			}
 		} else if (p_property == "terrain_set") {

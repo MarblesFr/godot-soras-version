@@ -849,9 +849,9 @@ private:
 		struct PolygonShapeTileData {
 			Ref<RectangleShape2D> shape;
 			mutable HashMap<int, Ref<RectangleShape2D>> transformed_shape;
-			bool one_way = false;
 		};
 
+		bool one_way = false;
 		Vector2 linear_velocity;
 		double angular_velocity = 0.0;
 		Vector<PolygonShapeTileData> rectangles;
@@ -951,8 +951,8 @@ public:
 	void remove_collision_rectangle(int p_layer_id, int p_rectangle_index);
 	void set_collision_rectangle_data(int p_layer_id, int p_rectangle_index, Vector<Vector2i> p_data);
 	Vector<Vector2i> get_collision_rectangle_data(int p_layer_id, int p_rectangle_index) const;
-	void set_collision_rectangle_one_way(int p_layer_id, int p_rectangle_index, bool p_one_way);
-	bool is_collision_rectangle_one_way(int p_layer_id, int p_rectangle_index) const;
+	void set_collision_one_way(int p_layer_id, bool p_one_way);
+	bool is_collision_one_way(int p_layer_id) const;
 	Ref<RectangleShape2D> get_collision_rectangle_shape(int p_layer_id, int p_rectangle_index, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false) const;
 
 	// Terrain

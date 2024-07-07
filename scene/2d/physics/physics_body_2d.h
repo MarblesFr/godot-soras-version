@@ -62,10 +62,13 @@ public:
 	bool test_move(const Transform2Di &p_from, const Vector2i &p_motion, const Ref<KinematicCollision2D> &r_collision = Ref<KinematicCollision2D>(), bool p_recovery_as_collision = false);
 	Vector2i get_gravity() const;
 
-	bool collides_at(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result = nullptr);
-	virtual bool _collides_at(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>());
+	bool collides_at(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result = nullptr, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+	virtual bool _collides_at(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
-	bool on_ground();
+	bool collides_at_outside(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result = nullptr, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+	virtual bool _collides_at_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+
+	virtual bool on_ground();
 
 	TypedArray<PhysicsBody2D> get_collision_exceptions();
 	void add_collision_exception_with(Node *p_node); //must be physicsbody

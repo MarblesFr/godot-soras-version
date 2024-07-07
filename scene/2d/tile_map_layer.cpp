@@ -835,6 +835,8 @@ void TileMapLayer::_physics_update_cell(CellData &r_cell_data) {
 						ps->body_set_pickable(body, false);
 						ps->body_set_state(body, PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY, tile_data->get_constant_linear_velocity(tile_set_physics_layer));
 						ps->body_set_state(body, PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY, tile_data->get_constant_angular_velocity(tile_set_physics_layer));
+						bool one_way_collision = tile_data->is_collision_one_way(tile_set_physics_layer);
+						ps->body_set_collider_type(body,  one_way_collision ? PhysicsServer2D::COLLIDER_TYPE_ONE_WAY : PhysicsServer2D::COLLIDER_TYPE_SOLID);
 
 						if (!physics_material.is_valid()) {
 							ps->body_set_param(body, PhysicsServer2D::BODY_PARAM_BOUNCE, 0);
@@ -851,10 +853,8 @@ void TileMapLayer::_physics_update_cell(CellData &r_cell_data) {
 						int body_shape_index = 0;
 						for (int rectangle_index = 0; rectangle_index < tile_data->get_collision_rectangles_count(tile_set_physics_layer); rectangle_index++) {
 							// Iterate over the rectangles.
-							bool one_way_collision = tile_data->is_collision_rectangle_one_way(tile_set_physics_layer, rectangle_index);
 							Ref<RectangleShape2D> shape = tile_data->get_collision_rectangle_shape(tile_set_physics_layer, rectangle_index, flip_h, flip_v, transpose);
 							ps->body_add_shape(body, shape->get_rid());
-							ps->body_set_shape_as_one_way_collision(body, body_shape_index, one_way_collision);
 							body_shape_index++;
 						}
 					}

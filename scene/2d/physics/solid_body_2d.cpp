@@ -45,3 +45,19 @@ bool SolidBody2D::move_v_exact(int32_t amount, const Callable &collision_callbac
 	PhysicsServer2D::get_singleton()->body_get_riding_bodies(get_rid(), &bodies);
 	return false;
 }
+
+void SolidBody2D::set_one_way_collision(bool p_enable) {
+	one_way_collision = p_enable;
+	set_collider_type(p_enable ? PhysicsServer2D::COLLIDER_TYPE_ONE_WAY : PhysicsServer2D::COLLIDER_TYPE_SOLID);
+}
+
+bool SolidBody2D::is_one_way_collision_enabled() const {
+	return one_way_collision;
+}
+
+void SolidBody2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_one_way_collision", "enabled"), &SolidBody2D::set_one_way_collision);
+	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &SolidBody2D::is_one_way_collision_enabled);
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
+}

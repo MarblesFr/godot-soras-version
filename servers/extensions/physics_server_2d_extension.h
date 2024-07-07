@@ -304,7 +304,6 @@ public:
 	EXBIND2RC(Transform2Di, body_get_shape_transform, RID, int)
 
 	EXBIND3(body_set_shape_disabled, RID, int, bool)
-	EXBIND3(body_set_shape_as_one_way_collision, RID, int, bool)
 
 	EXBIND2(body_remove_shape, RID, int)
 	EXBIND1(body_clear_shapes, RID)

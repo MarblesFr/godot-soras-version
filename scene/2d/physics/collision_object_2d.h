@@ -72,7 +72,6 @@ private:
 		Vector<Shape> shapes;
 
 		bool disabled = false;
-		bool one_way_collision = false;
 	};
 
 	int total_subshapes = 0;
@@ -147,9 +146,6 @@ public:
 
 	void shape_owner_set_disabled(uint32_t p_owner, bool p_disabled);
 	bool is_shape_owner_disabled(uint32_t p_owner) const;
-
-	void shape_owner_set_one_way_collision(uint32_t p_owner, bool p_enable);
-	bool is_shape_owner_one_way_collision_enabled(uint32_t p_owner) const;
 
 	void shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2D> &p_shape);
 	int shape_owner_get_shape_count(uint32_t p_owner) const;

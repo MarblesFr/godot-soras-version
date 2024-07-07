@@ -354,6 +354,7 @@ public:
 		COLLIDER_TYPE_ACTOR = 1 << 0,
 		COLLIDER_TYPE_SOLID = 1 << 1,
 		COLLIDER_TYPE_SIMULATED = 1 << 2,
+		COLLIDER_TYPE_ONE_WAY = 1 << 3,
 	};
 
 	static const int16_t DEFAULT_COLLIDER_FILTER = COLLIDER_TYPE_SOLID;
@@ -378,7 +379,6 @@ public:
 	virtual Transform2Di body_get_shape_transform(RID p_body, int p_shape_idx) const = 0;
 
 	virtual void body_set_shape_disabled(RID p_body, int p_shape, bool p_disabled) = 0;
-	virtual void body_set_shape_as_one_way_collision(RID p_body, int p_shape, bool p_enabled) = 0;
 
 	virtual void body_remove_shape(RID p_body, int p_shape_idx) = 0;
 	virtual void body_clear_shapes(RID p_body) = 0;
