@@ -1020,6 +1020,10 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 		r_result->collider_shape = 0;
 	}
 
+	if(!p_body->is_collidable()) {
+		return false;
+	}
+
 	Rect2i body_aabb;
 
 	bool shapes_found = false;
@@ -1074,6 +1078,10 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
 
+				if(!col_obj->is_collidable()) {
+					continue;
+				}
+
 				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
 					if (col_body) {
@@ -1116,6 +1124,10 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 }
 
 bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, const GodotBody2D *p_other) {
+	if(!p_body->is_collidable() || !p_other->is_collidable()) {
+		return false;
+	}
+
 	Rect2i body_aabb;
 
 	bool shapes_found = false;
@@ -1195,6 +1207,10 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di
 }
 
 bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+	if(!p_body->is_collidable()) {
+		return false;
+	}
+
 	r_bodies.clear();
 
 	Rect2i body_aabb;
@@ -1250,6 +1266,10 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
+
+				if(!col_obj->is_collidable()) {
+					continue;
+				}
 
 				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);

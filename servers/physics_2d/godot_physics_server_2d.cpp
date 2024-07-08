@@ -449,6 +449,12 @@ void GodotPhysicsServer2D::area_set_pickable(RID p_area, bool p_pickable) {
 	area->set_pickable(p_pickable);
 }
 
+void GodotPhysicsServer2D::area_set_collidable(RID p_area, bool p_collidable) {
+	GodotArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	area->set_collidable(p_collidable);
+}
+
 void GodotPhysicsServer2D::area_set_monitorable(RID p_area, bool p_monitorable) {
 	GodotArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL(area);
@@ -1015,6 +1021,12 @@ void GodotPhysicsServer2D::body_set_pickable(RID p_body, bool p_pickable) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
 	body->set_pickable(p_pickable);
+}
+
+void GodotPhysicsServer2D::body_set_collidable(RID p_body, bool p_collidable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_collidable(p_collidable);
 }
 
 bool GodotPhysicsServer2D::body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result) {

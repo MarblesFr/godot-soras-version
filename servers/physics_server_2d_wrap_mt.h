@@ -154,6 +154,7 @@ public:
 
 	FUNC2(area_set_monitorable, RID, bool);
 	FUNC2(area_set_pickable, RID, bool);
+	FUNC2(area_set_collidable, RID, bool);
 
 	FUNC2(area_set_monitor_callback, RID, const Callable &);
 	FUNC2(area_set_area_monitor_callback, RID, const Callable &);
@@ -252,6 +253,7 @@ public:
 	}
 
 	FUNC2(body_set_pickable, RID, bool);
+	FUNC2(body_set_collidable, RID, bool);
 
 	FUNC2(body_set_is_riding_solid, RID, const Callable &);
 	FUNC2(body_set_is_riding_one_way, RID, const Callable &);

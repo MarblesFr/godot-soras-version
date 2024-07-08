@@ -277,6 +277,7 @@ public:
 
 	EXBIND2(area_set_monitorable, RID, bool)
 	EXBIND2(area_set_pickable, RID, bool)
+	EXBIND2(area_set_collidable, RID, bool)
 
 	EXBIND2(area_set_monitor_callback, RID, const Callable &)
 	EXBIND2(area_set_area_monitor_callback, RID, const Callable &)
@@ -386,6 +387,7 @@ public:
 	}
 
 	EXBIND2(body_set_pickable, RID, bool)
+	EXBIND2(body_set_collidable, RID, bool)
 
 	EXBIND1R(PhysicsDirectBodyState2D *, body_get_direct_state, RID)
 

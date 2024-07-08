@@ -340,6 +340,7 @@ public:
 
 	virtual void area_set_monitorable(RID p_area, bool p_monitorable) = 0;
 	virtual void area_set_pickable(RID p_area, bool p_pickable) = 0;
+	virtual void area_set_collidable(RID p_area, bool p_collidable) = 0;
 
 	virtual void area_set_monitor_callback(RID p_area, const Callable &p_callback) = 0;
 	virtual void area_set_area_monitor_callback(RID p_area, const Callable &p_callback) = 0;
@@ -490,6 +491,7 @@ public:
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) = 0;
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) = 0;
+	virtual void body_set_collidable(RID p_body, bool p_pickable) = 0;
 
 	// this function only works on physics process, errors and returns null otherwise
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) = 0;

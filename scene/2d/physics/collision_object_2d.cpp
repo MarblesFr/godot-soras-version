@@ -62,6 +62,7 @@ void CollisionObject2D::_notification(int p_what) {
 			}
 
 			_update_pickable();
+			_update_collidable();
 		} break;
 
 		case NOTIFICATION_ENTER_CANVAS: {
@@ -476,6 +477,19 @@ bool CollisionObject2D::is_pickable() const {
 	return pickable;
 }
 
+void CollisionObject2D::set_collidable(bool p_enabled) {
+	if (collidable == p_enabled) {
+		return;
+	}
+
+	collidable = p_enabled;
+	_update_collidable();
+}
+
+bool CollisionObject2D::is_collidable() const {
+	return collidable;
+}
+
 void CollisionObject2D::_input_event_call(Viewport *p_viewport, const Ref<InputEvent> &p_input_event, int p_shape) {
 	GDVIRTUAL_CALL(_input_event, p_viewport, p_input_event, p_shape);
 	emit_signal(SceneStringName(input_event), p_viewport, p_input_event, p_shape);
@@ -553,6 +567,19 @@ void CollisionObject2D::_update_pickable() {
 	}
 }
 
+void CollisionObject2D::_update_collidable() {
+	if (!is_inside_tree()) {
+		return;
+	}
+
+	bool is_collidable = collidable && is_enabled();
+	if (area) {
+		PhysicsServer2D::get_singleton()->area_set_collidable(rid, false);
+	} else {
+		PhysicsServer2D::get_singleton()->body_set_collidable(rid, is_collidable);
+	}
+}
+
 PackedStringArray CollisionObject2D::get_configuration_warnings() const {
 	PackedStringArray warnings = Node::get_configuration_warnings();
 
@@ -579,6 +606,8 @@ void CollisionObject2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_disable_mode"), &CollisionObject2D::get_disable_mode);
 	ClassDB::bind_method(D_METHOD("set_pickable", "enabled"), &CollisionObject2D::set_pickable);
 	ClassDB::bind_method(D_METHOD("is_pickable"), &CollisionObject2D::is_pickable);
+	ClassDB::bind_method(D_METHOD("set_collidable", "enabled"), &CollisionObject2D::set_collidable);
+	ClassDB::bind_method(D_METHOD("is_collidable"), &CollisionObject2D::is_collidable);
 	ClassDB::bind_method(D_METHOD("create_shape_owner", "owner"), &CollisionObject2D::create_shape_owner);
 	ClassDB::bind_method(D_METHOD("remove_shape_owner", "owner_id"), &CollisionObject2D::remove_shape_owner);
 	ClassDB::bind_method(D_METHOD("get_shape_owners"), &CollisionObject2D::_get_shape_owners);
@@ -613,6 +642,7 @@ void CollisionObject2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "collision_priority"), "set_collision_priority", "get_collision_priority");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collidable"), "set_collidable", "is_collidable");
 
 	ADD_GROUP("Input", "input_");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "input_pickable"), "set_pickable", "is_pickable");
@@ -626,6 +656,7 @@ CollisionObject2D::CollisionObject2D(RID p_rid, bool p_area) {
 	rid = p_rid;
 	area = p_area;
 	pickable = true;
+	collidable = !p_area;
 	set_notify_transform(true);
 	set_hide_clip_children(true);
 	total_subshapes = 0;
