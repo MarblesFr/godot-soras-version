@@ -210,8 +210,13 @@ class PhysicsServer2D : public Object {
 
 	static PhysicsServer2D *singleton;
 
+	virtual TypedArray<RID> _body_get_riding_bodies_solid(RID p_body);
+	virtual TypedArray<RID> _body_get_riding_bodies_one_way(RID p_body);
+
 	virtual bool _body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result = Ref<PhysicsTestMotionResult2D>());
 	virtual bool _body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &collision_type_filter = DEFAULT_COLLIDER_FILTER);
+	virtual bool _body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other);
+	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, const int16_t &collision_type_filter);
 
 protected:
 	static void _bind_methods();
@@ -469,8 +474,6 @@ public:
 	virtual void body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
 	virtual void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) = 0;
 
-	virtual void body_get_riding_bodies(RID p_body, List<RID> *p_bodies) = 0;
-
 	virtual void body_set_max_contacts_reported(RID p_body, int p_contacts) = 0;
 	virtual int body_get_max_contacts_reported(RID p_body) const = 0;
 
@@ -483,8 +486,6 @@ public:
 
 	virtual void body_set_state_sync_callback(RID p_body, const Callable &p_callable) = 0;
 	virtual void body_set_force_integration_callback(RID p_body, const Callable &p_callable, const Variant &p_udata = Variant()) = 0;
-
-	virtual void body_set_is_riding(RID p_body, const Callable &p_callable) = 0;
 
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) = 0;
 
@@ -541,8 +542,16 @@ public:
 		}
 	};
 
+	virtual void body_set_is_riding_solid(RID p_body, const Callable &p_callable) = 0;
+	virtual void body_set_is_riding_one_way(RID p_body, const Callable &p_callable) = 0;
+
+	virtual void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) = 0;
+	virtual void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) = 0;
+
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) = 0;
 	virtual bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+	virtual bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) = 0;
+	virtual bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 
 	/* JOINT API */
 

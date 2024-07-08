@@ -142,7 +142,8 @@ class GodotBody2D : public GodotCollisionObject2D {
 
 	Callable body_state_callback;
 
-	Callable is_riding_callable;
+	Callable is_riding_solid_callable;
+	Callable is_riding_one_way_callable;
 
 	struct ForceIntegrationCallbackData {
 		Callable callable;
@@ -163,8 +164,11 @@ public:
 	void set_state_sync_callback(const Callable &p_callable);
 	void set_force_integration_callback(const Callable &p_callable, const Variant &p_udata = Variant());
 
-	void set_is_riding(const Callable &p_callable);
-	bool is_riding(const RID &p_rid);
+	void set_is_riding_solid(const Callable &p_callable);
+	bool is_riding_solid(const RID &p_rid);
+
+	void set_is_riding_one_way(const Callable &p_callable);
+	bool is_riding_one_way(const RID &p_rid);
 
 	GodotPhysicsDirectBodyState2D *get_direct_state();
 

@@ -639,6 +639,28 @@ void PhysicsCollisionResult2D::_bind_methods() {
 
 ///////////////////////////////////////
 
+TypedArray<RID> PhysicsServer2D::_body_get_riding_bodies_solid(RID p_body) {
+	List<RID> bodies;
+	TypedArray<RID> r_bodies;
+	body_get_riding_bodies_solid(p_body, bodies);
+	for (const RID &rid : bodies) {
+		r_bodies.push_back(rid);
+	}
+	return r_bodies;
+}
+
+TypedArray<RID> PhysicsServer2D::_body_get_riding_bodies_one_way(RID p_body) {
+	List<RID> bodies;
+	TypedArray<RID> r_bodies;
+	body_get_riding_bodies_one_way(p_body, bodies);
+	for (const RID &rid : bodies) {
+		r_bodies.push_back(rid);
+	}
+	return r_bodies;
+}
+
+///////////////////////////////////////
+
 bool PhysicsServer2D::_body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result) {
 	ERR_FAIL_COND_V(!p_parameters.is_valid(), false);
 
@@ -650,13 +672,27 @@ bool PhysicsServer2D::_body_test_motion(RID p_body, const Ref<PhysicsTestMotionP
 	return body_test_motion(p_body, p_parameters->get_parameters(), result_ptr);
 }
 
-bool PhysicsServer2D::_body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, const Ref<PhysicsCollisionResult2D> &p_result, const int16_t &collision_type_filter) {
+bool PhysicsServer2D::_body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, const Ref<PhysicsCollisionResult2D> &r_result, const int16_t &collision_type_filter) {
 	CollisionResult *result_ptr = nullptr;
-	if (p_result.is_valid()) {
-		result_ptr = p_result->get_result_ptr();
+	if (r_result.is_valid()) {
+		result_ptr = r_result->get_result_ptr();
 	}
 
 	return body_collides_at(p_body, from, delta, result_ptr, collision_type_filter);
+}
+
+bool PhysicsServer2D::_body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) {
+	return body_collides_at_with(p_body, from, delta, p_other);
+}
+
+TypedArray<RID> PhysicsServer2D::_body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, const int16_t &collision_type_filter) {
+	List<RID> bodies;
+	TypedArray<RID> r_bodies;
+	body_collides_at_all(p_body, from, delta, bodies, collision_type_filter);
+	for (const RID &rid : bodies) {
+		r_bodies.push_back(rid);
+	}
+	return r_bodies;
 }
 
 void PhysicsServer2D::_bind_methods() {
@@ -796,8 +832,13 @@ void PhysicsServer2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("body_set_force_integration_callback", "body", "callable", "userdata"), &PhysicsServer2D::body_set_force_integration_callback, DEFVAL(Variant()));
 
+	ClassDB::bind_method(D_METHOD("body_get_riding_bodies_solid", "body"), &PhysicsServer2D::_body_get_riding_bodies_solid);
+	ClassDB::bind_method(D_METHOD("body_get_riding_bodies_one_way", "body"), &PhysicsServer2D::_body_get_riding_bodies_one_way);
+
 	ClassDB::bind_method(D_METHOD("body_test_motion", "body", "parameters", "result"), &PhysicsServer2D::_body_test_motion, DEFVAL(Variant()));
-	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "from", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "from", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("body_collides_at_with", "body", "from", "delta", "other"), &PhysicsServer2D::_body_collides_at_with);
+	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "from", "delta", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(DEFAULT_COLLIDER_FILTER));
 
 	ClassDB::bind_method(D_METHOD("body_get_direct_state", "body"), &PhysicsServer2D::body_get_direct_state);
 

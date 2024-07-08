@@ -743,13 +743,24 @@ void GodotBody2D::set_force_integration_callback(const Callable &p_callable, con
 }
 
 
-void GodotBody2D::set_is_riding(const Callable &p_callable) {
-	is_riding_callable = p_callable;
+void GodotBody2D::set_is_riding_solid(const Callable &p_callable) {
+	is_riding_solid_callable = p_callable;
 }
 
-bool GodotBody2D::is_riding(const RID &p_rid) {
-	if (is_riding_callable.is_valid()) {
-		return is_riding_callable.call(p_rid);
+bool GodotBody2D::is_riding_solid(const RID &p_rid) {
+	if (is_riding_solid_callable.is_valid()) {
+		return is_riding_solid_callable.call(p_rid);
+	}
+	return false;
+}
+
+void GodotBody2D::set_is_riding_one_way(const Callable &p_callable) {
+	is_riding_one_way_callable = p_callable;
+}
+
+bool GodotBody2D::is_riding_one_way(const RID &p_rid) {
+	if (is_riding_one_way_callable.is_valid()) {
+		return is_riding_one_way_callable.call(p_rid);
 	}
 	return false;
 }

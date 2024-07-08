@@ -38,6 +38,7 @@ class SolidBody2D : public PhysicsBody2D {
 	GDCLASS(SolidBody2D, PhysicsBody2D);
 
 	bool one_way_collision = false;
+	List<RID> riders;
 
 protected:
 	static void _bind_methods();
@@ -48,6 +49,8 @@ public:
 
 	void set_one_way_collision(bool p_enable);
 	bool is_one_way_collision_enabled() const;
+
+	void update_riders();
 
 	SolidBody2D();
 };

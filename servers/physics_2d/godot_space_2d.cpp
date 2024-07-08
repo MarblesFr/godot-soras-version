@@ -1014,14 +1014,7 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 	return collided;
 }
 
-bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di from, const Vector2i delta, PhysicsServer2D::CollisionResult *r_result, const int16_t collision_type_filter) {
-	//give me back regular physics engine logic
-	//this is madness
-	//and most people using this function will think
-	//what it does is simpler than using physics
-	//this took about a week to get right..
-	//but is it right? who knows at this point..
-
+bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
 	if (r_result) {
 		r_result->collider_id = ObjectID();
 		r_result->collider_shape = 0;
@@ -1049,17 +1042,15 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di from
 	}
 
 	// Undo the current transform the physics server is aware of and apply the provided one
-	body_aabb = from.xform(p_body->get_inv_transform().xform(body_aabb));
+	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
 
 	static const int max_excluded_shape_pairs = 32;
 	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
 	int excluded_shape_pair_count = 0;
 
-	Transform2Di body_transform = from;
-
 	{
 		Rect2i moved_aabb = body_aabb;
-		moved_aabb.position += delta;
+		moved_aabb.position += p_delta;
 
 		int amount = _cull_aabb_for_body(p_body, moved_aabb);
 
@@ -1073,8 +1064,8 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di from
 			}
 
 			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_moved_aabb = from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
-			shape_moved_aabb.position += delta;
+			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
+			shape_moved_aabb.position += p_delta;
 
 			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
 
@@ -1086,7 +1077,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di from
 				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
 					if (col_body) {
-						if(!(col_body->get_collider_type() & collision_type_filter)) {
+						if(!(col_body->get_collider_type() & p_collision_type_filter)) {
 							continue;
 						}
 					}
@@ -1123,6 +1114,178 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di from
 
 	return false;
 }
+
+bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, const GodotBody2D *p_other) {
+	Rect2i body_aabb;
+
+	bool shapes_found = false;
+
+	for (int i = 0; i < p_body->get_shape_count(); i++) {
+		if (p_body->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!shapes_found) {
+			body_aabb = p_body->get_shape_aabb(i);
+			shapes_found = true;
+		} else {
+			body_aabb = body_aabb.merge(p_body->get_shape_aabb(i));
+		}
+	}
+
+	if (!shapes_found) {
+		return false;
+	}
+
+	Rect2i other_aabb;
+
+	bool other_shapes_found = false;
+
+	for (int i = 0; i < p_other->get_shape_count(); i++) {
+		if (p_other->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!other_shapes_found) {
+			other_aabb = p_other->get_shape_aabb(i);
+			other_shapes_found = true;
+		} else {
+			other_aabb = body_aabb.merge(p_other->get_shape_aabb(i));
+		}
+	}
+
+	if (!other_shapes_found) {
+		return false;
+	}
+
+	// Undo the current transform the physics server is aware of and apply the provided one
+	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
+
+	{
+		Rect2i moved_aabb = body_aabb;
+		moved_aabb.position += p_delta;
+
+		if (!moved_aabb.intersects(other_aabb)) {
+			return false;
+		}
+
+		for (int body_shape_idx = 0; body_shape_idx < p_body->get_shape_count(); body_shape_idx++) {
+			if (p_body->is_shape_disabled(body_shape_idx)) {
+				continue;
+			}
+
+			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
+			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
+			shape_moved_aabb.position += p_delta;
+
+			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+
+			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
+				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
+
+				if (shape_moved_aabb.intersects(other_shape_aabb)) {
+					return true;
+				}
+			}
+		}
+	}
+
+
+	return false;
+}
+
+bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+	r_bodies.clear();
+
+	Rect2i body_aabb;
+
+	bool shapes_found = false;
+
+	for (int i = 0; i < p_body->get_shape_count(); i++) {
+		if (p_body->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!shapes_found) {
+			body_aabb = p_body->get_shape_aabb(i);
+			shapes_found = true;
+		} else {
+			body_aabb = body_aabb.merge(p_body->get_shape_aabb(i));
+		}
+	}
+
+	if (!shapes_found) {
+		return false;
+	}
+
+	// Undo the current transform the physics server is aware of and apply the provided one
+	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
+
+	static const int max_excluded_shape_pairs = 32;
+	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
+	int excluded_shape_pair_count = 0;
+
+	{
+		Rect2i moved_aabb = body_aabb;
+		moved_aabb.position += p_delta;
+
+		int amount = _cull_aabb_for_body(p_body, moved_aabb);
+
+		if (amount == 0) {
+			return false;
+		}
+
+		for (int body_shape_idx = 0; body_shape_idx < p_body->get_shape_count(); body_shape_idx++) {
+			if (p_body->is_shape_disabled(body_shape_idx)) {
+				continue;
+			}
+
+			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
+			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
+			shape_moved_aabb.position += p_delta;
+
+			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
+
+			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+
+			for (int i = 0; i < amount; i++) {
+				GodotCollisionObject2D *col_obj = intersection_query_results[i];
+
+				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
+					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
+					if (col_body) {
+						if(!(col_body->get_collider_type() & p_collision_type_filter)) {
+							continue;
+						}
+					}
+				}
+
+				int col_shape_idx = intersection_query_subindex_results[i];
+
+//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
+
+				bool excluded = false;
+				for (int k = 0; k < excluded_shape_pair_count; k++) {
+					if (excluded_shape_pairs[k].local_shape == body_shape && excluded_shape_pairs[k].against_object == col_obj && excluded_shape_pairs[k].against_shape_index == col_shape_idx) {
+						excluded = true;
+						break;
+					}
+				}
+				if (excluded) {
+					continue;
+				}
+
+				if (r_bodies.find(col_obj->get_self()) == nullptr) {
+					r_bodies.push_back(col_obj->get_self());
+				}
+			}
+		}
+	}
+
+
+	return !r_bodies.is_empty();
+}
+
 // Assumes a valid collision pair, this should have been checked beforehand in the BVH or octree.
 void *GodotSpace2D::_broadphase_pair(GodotCollisionObject2D *A, int p_subindex_A, GodotCollisionObject2D *B, int p_subindex_B, void *p_self) {
 	GodotCollisionObject2D::Type type_A = A->get_type();

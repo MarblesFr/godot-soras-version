@@ -235,8 +235,6 @@ public:
 	FUNC2(body_remove_collision_exception, RID, RID);
 	FUNC2S(body_get_collision_exceptions, RID, List<RID> *);
 
-	FUNC2S(body_get_riding_bodies, RID, List<RID> *);
-
 	FUNC2(body_set_max_contacts_reported, RID, int);
 	FUNC1RC(int, body_get_max_contacts_reported, RID);
 
@@ -249,22 +247,43 @@ public:
 	FUNC2(body_set_state_sync_callback, RID, const Callable &);
 	FUNC3(body_set_force_integration_callback, RID, const Callable &, const Variant &);
 
-	FUNC2(body_set_is_riding, RID, const Callable &);
-
 	bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override {
 		return physics_server_2d->body_collide_shape(p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, r_result_count);
 	}
 
 	FUNC2(body_set_pickable, RID, bool);
 
+	FUNC2(body_set_is_riding_solid, RID, const Callable &);
+	FUNC2(body_set_is_riding_one_way, RID, const Callable &);
+
+	void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {
+		ERR_FAIL_COND(!Thread::is_main_thread());
+		physics_server_2d->body_get_riding_bodies_solid(p_body, r_bodies);
+	}
+
+	void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override {
+		ERR_FAIL_COND(!Thread::is_main_thread());
+		physics_server_2d->body_get_riding_bodies_one_way(p_body, r_bodies);
+	}
+
 	bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
 		return physics_server_2d->body_test_motion(p_body, p_parameters, r_result);
 	}
 
-	bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at(p_body, from, delta, r_result, collision_type_filter);
+		return physics_server_2d->body_collides_at(p_body, from, delta, r_result, p_collision_type_filter);
+	}
+
+	bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_collides_at_with(p_body, from, delta, p_other);
+	}
+
+	bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_collides_at_all(p_body, from, delta, r_bodies, p_collision_type_filter);
 	}
 
 	// this function only works on physics process, errors and returns null otherwise

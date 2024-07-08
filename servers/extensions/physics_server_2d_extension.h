@@ -366,16 +366,6 @@ public:
 		}
 	}
 
-	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies, RID)
-
-	void body_get_riding_bodies(RID p_body, List<RID> *p_bodies) override {
-		p_bodies->clear();
-		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_get_riding_bodies, p_body, ret);
-		for (int i = 0; i < ret.size(); i++) {
-			p_bodies->push_back(ret[i]);
-		}
-	}
 
 	EXBIND2(body_set_max_contacts_reported, RID, int)
 	EXBIND1RC(int, body_get_max_contacts_reported, RID)
@@ -389,8 +379,6 @@ public:
 	EXBIND2(body_set_state_sync_callback, RID, const Callable &)
 	EXBIND3(body_set_force_integration_callback, RID, const Callable &, const Variant &)
 
-	EXBIND2(body_set_is_riding, RID, const Callable &)
-
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override {
 		bool ret = false;
 		GDVIRTUAL_REQUIRED_CALL(_body_collide_shape, p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, &r_result_count, ret);
@@ -403,6 +391,32 @@ public:
 
 	GDVIRTUAL6RC(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
 	GDVIRTUAL5RC(bool, _body_collides_at, RID, const Transform2Di &, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResult>, const int16_t &)
+	GDVIRTUAL4RC(bool, _body_collides_at_with, RID, const Transform2Di &, const Vector2i &, const RID &)
+	GDVIRTUAL4RC(TypedArray<RID>, _body_collides_at_all, RID, const Transform2Di &, const Vector2i &, const int16_t &)
+
+	EXBIND2(body_set_is_riding_solid, RID, const Callable &)
+	EXBIND2(body_set_is_riding_one_way, RID, const Callable &)
+
+	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_solid, RID)
+	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_one_way, RID)
+
+	void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {
+		r_bodies.clear();
+		TypedArray<RID> ret;
+		GDVIRTUAL_REQUIRED_CALL(_body_get_riding_bodies_solid, p_body, ret);
+		for (int i = 0; i < ret.size(); i++) {
+			r_bodies.push_back(ret[i]);
+		}
+	}
+
+	void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override {
+		r_bodies.clear();
+		TypedArray<RID> ret;
+		GDVIRTUAL_REQUIRED_CALL(_body_get_riding_bodies_one_way, p_body, ret);
+		for (int i = 0; i < ret.size(); i++) {
+			r_bodies.push_back(ret[i]);
+		}
+	}
 
 	thread_local static const HashSet<RID> *exclude_bodies;
 	thread_local static const HashSet<ObjectID> *exclude_objects;
@@ -425,6 +439,23 @@ public:
 		GDVIRTUAL_REQUIRED_CALL(_body_collides_at, p_body, from, delta, r_result, collision_type_filter, ret);
 		return ret;
 	}
+
+	bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) override {
+		bool ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_with, p_body, from, delta, p_other, ret);
+		return ret;
+	}
+
+	bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+		r_bodies.clear();
+		TypedArray<RID> ret;
+		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_all, p_body, from, delta, collision_type_filter, ret);
+		for (int i = 0; i < ret.size(); i++) {
+			r_bodies.push_back(ret[i]);
+		}
+		return !ret.is_empty();
+	}
+
 
 	/* JOINT API */
 

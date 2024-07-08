@@ -236,7 +236,8 @@ public:
 	virtual void body_remove_collision_exception(RID p_body, RID p_body_b) override;
 	virtual void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override;
 
-	virtual void body_get_riding_bodies(RID p_body, List<RID> *p_bodies) override;
+	virtual void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override;
+	virtual void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override;
 
 	virtual void body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) override;
 	virtual real_t body_get_contacts_reported_depth_threshold(RID p_body) const override;
@@ -250,14 +251,17 @@ public:
 	virtual void body_set_state_sync_callback(RID p_body, const Callable &p_callable) override;
 	virtual void body_set_force_integration_callback(RID p_body, const Callable &p_callable, const Variant &p_udata = Variant()) override;
 
-	virtual void body_set_is_riding(RID p_body, const Callable &p_callable) override;
+	virtual void body_set_is_riding_solid(RID p_body, const Callable &p_callable) override;
+	virtual void body_set_is_riding_one_way(RID p_body, const Callable &p_callable) override;
 
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override;
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) override;
 
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override;
-	virtual bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
+	virtual bool body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
+	virtual bool body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) override;
+	virtual bool body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
 
 	// this function only works on physics process, errors and returns null otherwise
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override;

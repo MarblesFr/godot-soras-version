@@ -35,14 +35,14 @@ SolidBody2D::SolidBody2D() :
 }
 
 bool SolidBody2D::move_h_exact(int32_t amount, const Callable &collision_callback) {
-	List<RID> bodies;
-	PhysicsServer2D::get_singleton()->body_get_riding_bodies(get_rid(), &bodies);
+	update_riders();
+	translate(Vector2i(amount, 0));
 	return false;
 }
 
 bool SolidBody2D::move_v_exact(int32_t amount, const Callable &collision_callback) {
-	List<RID> bodies;
-	PhysicsServer2D::get_singleton()->body_get_riding_bodies(get_rid(), &bodies);
+	update_riders();
+	translate(Vector2i(0, amount));
 	return false;
 }
 
@@ -53,6 +53,15 @@ void SolidBody2D::set_one_way_collision(bool p_enable) {
 
 bool SolidBody2D::is_one_way_collision_enabled() const {
 	return one_way_collision;
+}
+
+void SolidBody2D::update_riders() {
+	riders.clear();
+	if (one_way_collision) {
+		PhysicsServer2D::get_singleton()->body_get_riding_bodies_one_way(get_rid(), riders);
+	} else {
+		PhysicsServer2D::get_singleton()->body_get_riding_bodies_solid(get_rid(), riders);
+	}
 }
 
 void SolidBody2D::_bind_methods() {

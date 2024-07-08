@@ -52,10 +52,12 @@ public:
 	void set_ignores_one_way(bool p_enable);
 	bool is_ignores_one_way_enabled() const;
 
-	bool _is_riding(const RID &p_solid);
+	bool _is_riding_solid(const RID &p_solid);
+	bool _is_riding_one_way(const RID &p_one_way);
 	void _squish();
 
-	GDVIRTUAL1R(bool, _is_riding, RID)
+	GDVIRTUAL1R(bool, _is_riding_solid, RID)
+	GDVIRTUAL1R(bool, _is_riding_one_way, RID)
 	GDVIRTUAL0(_squish)
 
 	CharacterBody2D();

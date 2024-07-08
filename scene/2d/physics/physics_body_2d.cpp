@@ -48,6 +48,8 @@ void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("on_ground"), &PhysicsBody2D::on_ground);
 	ClassDB::bind_method(D_METHOD("collides_at", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("collides_at_outside", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at_outside, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("collides_at_with", "delta", "body"), &PhysicsBody2D::collides_at_with);
+	ClassDB::bind_method(D_METHOD("collides_at_with_outside", "delta", "body"), &PhysicsBody2D::collides_at_with_outside);
 
 
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position_delta", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_position_delta", "get_position_delta");
@@ -140,6 +142,14 @@ bool PhysicsBody2D::_collides_at_outside(const Vector2i &p_delta, const Ref<Phys
 	}
 
 	return collides_at_outside(p_delta, result_ptr, p_collision_type_filter);
+}
+
+bool PhysicsBody2D::collides_at_with(const Vector2i &p_delta, const RID &p_rid) {
+	return PhysicsServer2D::get_singleton()->body_collides_at_with(get_rid(), get_global_transform_i(), p_delta, p_rid);
+}
+
+bool PhysicsBody2D::collides_at_with_outside(const Vector2i &p_delta, const RID &p_rid) {
+	return !collides_at_with(Vector2i(0, 0), p_rid) && collides_at_with(p_delta, p_rid);
 }
 
 bool PhysicsBody2D::on_ground() {

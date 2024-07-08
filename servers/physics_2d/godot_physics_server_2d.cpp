@@ -907,8 +907,8 @@ void GodotPhysicsServer2D::body_get_collision_exceptions(RID p_body, List<RID> *
 	}
 };
 
-void GodotPhysicsServer2D::body_get_riding_bodies(RID p_body, List<RID> *p_bodies) {
-	p_bodies->clear();
+void GodotPhysicsServer2D::body_get_riding_bodies_solid(RID p_body, List<RID> &p_bodies) {
+	p_bodies.clear();
 	List<RID> bodies;
 	body_owner.get_owned_list(&bodies);
 	ERR_FAIL_NULL(&bodies);
@@ -919,8 +919,26 @@ void GodotPhysicsServer2D::body_get_riding_bodies(RID p_body, List<RID> *p_bodie
 		}
 		GodotBody2D *other_body = body_owner.get_or_null(bodies.get(i));
 		ERR_FAIL_NULL(other_body);
-		if (other_body->is_riding(p_body)) {
-			p_bodies->push_back(bodies.get(i));
+		if (other_body->is_riding_solid(p_body)) {
+			p_bodies.push_back(bodies.get(i));
+		}
+	}
+};
+
+void GodotPhysicsServer2D::body_get_riding_bodies_one_way(RID p_body, List<RID> &p_bodies) {
+	p_bodies.clear();
+	List<RID> bodies;
+	body_owner.get_owned_list(&bodies);
+	ERR_FAIL_NULL(&bodies);
+
+	for (int i = 0; i < bodies.size(); i++) {
+		if (bodies.get(i) == p_body) {
+			continue;
+		}
+		GodotBody2D *other_body = body_owner.get_or_null(bodies.get(i));
+		ERR_FAIL_NULL(other_body);
+		if (other_body->is_riding_one_way(p_body)) {
+			p_bodies.push_back(bodies.get(i));
 		}
 	}
 };
@@ -973,10 +991,16 @@ void GodotPhysicsServer2D::body_set_force_integration_callback(RID p_body, const
 	body->set_force_integration_callback(p_callable, p_udata);
 }
 
-void GodotPhysicsServer2D::body_set_is_riding(RID p_body, const Callable &p_callable) {
+void GodotPhysicsServer2D::body_set_is_riding_solid(RID p_body, const Callable &p_callable) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
-	body->set_is_riding(p_callable);
+	body->set_is_riding_solid(p_callable);
+}
+
+void GodotPhysicsServer2D::body_set_is_riding_one_way(RID p_body, const Callable &p_callable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_is_riding_one_way(p_callable);
 }
 
 bool GodotPhysicsServer2D::body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) {
@@ -1004,7 +1028,7 @@ bool GodotPhysicsServer2D::body_test_motion(RID p_body, const MotionParameters &
 	return body->get_space()->test_body_motion(body, p_parameters, r_result);
 }
 
-bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result, const int16_t collision_type_filter) {
+bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, CollisionResult *r_result, const int16_t p_collision_type_filter) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1012,8 +1036,36 @@ bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Transform2Di &from
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at(body, from, delta, r_result, collision_type_filter);
+	return body->get_space()->body_collides_at(body, p_from, p_delta, r_result, p_collision_type_filter);
 }
+
+bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	ERR_FAIL_NULL_V(body->get_space(), false);
+	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
+
+	GodotBody2D *other = body_owner.get_or_null(p_other);
+	ERR_FAIL_NULL_V(other, false);
+	ERR_FAIL_NULL_V(other->get_space(), false);
+	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+
+	_update_shapes();
+
+	return body->get_space()->body_collides_at_with(body, p_from, p_delta, other);
+}
+
+bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	ERR_FAIL_NULL_V(body->get_space(), false);
+	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
+
+	_update_shapes();
+
+	return body->get_space()->body_collides_at_all(body, p_from, p_delta, r_bodies, p_collision_type_filter);
+}
+
 
 PhysicsDirectBodyState2D *GodotPhysicsServer2D::body_get_direct_state(RID p_body) {
 	ERR_FAIL_COND_V_MSG((using_threads && !doing_sync), nullptr, "Body state is inaccessible right now, wait for iteration or physics process notification.");
