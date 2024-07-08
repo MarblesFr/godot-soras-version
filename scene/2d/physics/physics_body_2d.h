@@ -68,9 +68,11 @@ public:
 	bool collides_at_outside(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *p_result = nullptr, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 	virtual bool _collides_at_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
-	bool collides_at_with(const Vector2i &p_delta, const RID &p_rid);
+	bool collides_at_with(const Vector2i &p_delta, const RID &p_body);
 
-	bool collides_at_with_outside(const Vector2i &p_delta, const RID &p_rid);
+	bool collides_at_with_outside(const Vector2i &p_delta, const RID &p_body);
+
+	bool collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
 	virtual bool on_ground();
 
