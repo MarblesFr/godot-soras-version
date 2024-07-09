@@ -232,6 +232,36 @@ Variant VariantUtilityFunctions::round(const Variant &x, Callable::CallError &r_
 	}
 }
 
+Variant VariantUtilityFunctions::round_half_to_even(const Variant &x, Callable::CallError &r_error) {
+	r_error.error = Callable::CallError::CALL_OK;
+	switch (x.get_type()) {
+		case Variant::INT: {
+			return VariantInternalAccessor<int64_t>::get(&x);
+		} break;
+		case Variant::FLOAT: {
+			return Math::round_half_to_even(VariantInternalAccessor<double>::get(&x));
+		} break;
+		case Variant::VECTOR2: {
+			return VariantInternalAccessor<Vector2>::get(&x).round_half_to_even();
+		} break;
+		case Variant::VECTOR2I: {
+			return VariantInternalAccessor<Vector2i>::get(&x);
+		} break;
+		case Variant::VECTOR3I: {
+			return VariantInternalAccessor<Vector3i>::get(&x);
+		} break;
+		case Variant::VECTOR4I: {
+			return VariantInternalAccessor<Vector4i>::get(&x);
+		} break;
+		default: {
+			r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::NIL;
+			return R"(Argument "x" must be "int", "float", "Vector2", "Vector2i", "Vector3i", or "Vector4i".)";
+		} break;
+	}
+}
+
 double VariantUtilityFunctions::roundf(double x) {
 	return Math::round(x);
 }
@@ -1713,6 +1743,7 @@ void Variant::_register_variant_utility_functions() {
 	FUNCBINDR(ceili, sarray("x"), Variant::UTILITY_FUNC_TYPE_MATH);
 
 	FUNCBINDVR(round, sarray("x"), Variant::UTILITY_FUNC_TYPE_MATH);
+	FUNCBINDVR(round_half_to_even, sarray("x"), Variant::UTILITY_FUNC_TYPE_MATH);
 	FUNCBINDR(roundf, sarray("x"), Variant::UTILITY_FUNC_TYPE_MATH);
 	FUNCBINDR(roundi, sarray("x"), Variant::UTILITY_FUNC_TYPE_MATH);
 

@@ -1797,6 +1797,7 @@ static void _register_variant_builtin_methods_math() {
 	bind_method(Vector2, floor, sarray(), varray());
 	bind_method(Vector2, ceil, sarray(), varray());
 	bind_method(Vector2, round, sarray(), varray());
+	bind_method(Vector2, round_half_to_even, sarray(), varray());
 	bind_method(Vector2, aspect, sarray(), varray());
 	bind_method(Vector2, dot, sarray("with"), varray());
 	bind_method(Vector2, slide, sarray("n"), varray());

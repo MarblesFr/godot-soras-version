@@ -59,6 +59,7 @@ struct VariantUtilityFunctions {
 	static double ceilf(double x);
 	static int64_t ceili(double x);
 	static Variant round(const Variant &x, Callable::CallError &r_error);
+	static Variant round_half_to_even(const Variant &x, Callable::CallError &r_error);
 	static double roundf(double x);
 	static int64_t roundi(double x);
 	static Variant abs(const Variant &x, Callable::CallError &r_error);

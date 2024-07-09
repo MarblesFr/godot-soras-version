@@ -498,6 +498,22 @@ public:
 
 	static _ALWAYS_INLINE_ double round(double p_val) { return ::round(p_val); }
 	static _ALWAYS_INLINE_ float round(float p_val) { return ::roundf(p_val); }
+	static _ALWAYS_INLINE_ float round_half_to_even(float p_val) {
+		const real_t r = round(p_val);
+		const real_t d = r - p_val;
+
+		if ((d != 0.5f) && (d != -0.5f))
+		{
+			return r;
+		}
+
+		if (fmod(r, 2.0f) == 0.0f)
+		{
+			return r;
+		}
+
+		return (int)(p_val - d);
+	}
 
 	static _ALWAYS_INLINE_ int64_t wrapi(int64_t value, int64_t min, int64_t max) {
 		int64_t range = max - min;

@@ -175,6 +175,7 @@ struct [[nodiscard]] Vector2 {
 	Vector2i floor() const;
 	Vector2i ceil() const;
 	Vector2i round() const;
+	Vector2i round_half_to_even() const;
 	Vector2 snapped(const Vector2 &p_by) const;
 	Vector2 snappedf(real_t p_by) const;
 	Vector2 clamp(const Vector2 &p_min, const Vector2 &p_max) const;

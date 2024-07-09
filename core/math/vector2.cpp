@@ -109,6 +109,10 @@ Vector2i Vector2::round() const {
 	return Vector2i(Math::round(x), Math::round(y));
 }
 
+Vector2i Vector2::round_half_to_even() const {
+	return Vector2i(Math::round_half_to_even(x), Math::round_half_to_even(y));
+}
+
 Vector2 Vector2::rotated(real_t p_by) const {
 	real_t sine = Math::sin(p_by);
 	real_t cosi = Math::cos(p_by);
