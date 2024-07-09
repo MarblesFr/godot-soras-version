@@ -109,6 +109,8 @@ class GodotBody2D : public GodotCollisionObject2D {
 
 	List<Pair<GodotConstraint2D *, int>> constraint_list;
 
+	Vector2 carry_speed;
+
 	struct AreaCMP {
 		GodotArea2D *area = nullptr;
 		int refCount = 0;
@@ -142,8 +144,13 @@ class GodotBody2D : public GodotCollisionObject2D {
 
 	Callable body_state_callback;
 
+	Callable body_carry_speed_callback;
+
 	Callable is_riding_solid_callable;
 	Callable is_riding_one_way_callable;
+	Callable squish_callable;
+	Callable move_h_exact_callable;
+	Callable move_v_exact_callable;
 
 	struct ForceIntegrationCallbackData {
 		Callable callable;
@@ -169,6 +176,23 @@ public:
 
 	void set_is_riding_one_way(const Callable &p_callable);
 	bool is_riding_one_way(const RID &p_rid);
+
+	void set_squish(const Callable &p_callable);
+	Callable get_squish();
+
+	void set_move_h_exact(const Callable &p_callable);
+	bool move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+
+	void set_move_v_exact(const Callable &p_callable);
+	bool move_v_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+
+	void set_carry_speed_sync_callback(const Callable &p_callable);
+	void set_carry_speed(const Vector2 &p_speed) {
+		carry_speed = p_speed;
+		body_carry_speed_callback.call(carry_speed);
+	}
+	_FORCE_INLINE_ Vector2 get_carry_speed() const { return carry_speed; }
+
 
 	GodotPhysicsDirectBodyState2D *get_direct_state();
 

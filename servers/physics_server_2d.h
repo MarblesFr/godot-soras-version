@@ -213,10 +213,15 @@ class PhysicsServer2D : public Object {
 	virtual TypedArray<RID> _body_get_riding_bodies_solid(RID p_body);
 	virtual TypedArray<RID> _body_get_riding_bodies_one_way(RID p_body);
 
+	virtual bool _body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+	virtual bool _body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+
+	virtual Callable _body_get_squish_callable(RID p_body);
+
 	virtual bool _body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result = Ref<PhysicsTestMotionResult2D>());
 	virtual bool _body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &collision_type_filter = DEFAULT_COLLIDER_FILTER);
 	virtual bool _body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other);
-	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, const int16_t &collision_type_filter);
+	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, const int16_t &collision_type_filter = DEFAULT_COLLIDER_FILTER);
 
 protected:
 	static void _bind_methods();
@@ -493,6 +498,9 @@ public:
 	virtual void body_set_pickable(RID p_body, bool p_pickable) = 0;
 	virtual void body_set_collidable(RID p_body, bool p_pickable) = 0;
 
+	virtual void body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) = 0;
+	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) = 0;
+
 	// this function only works on physics process, errors and returns null otherwise
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) = 0;
 
@@ -546,6 +554,9 @@ public:
 
 	virtual void body_set_is_riding_solid(RID p_body, const Callable &p_callable) = 0;
 	virtual void body_set_is_riding_one_way(RID p_body, const Callable &p_callable) = 0;
+	virtual void body_set_squish(RID p_body, const Callable &p_callable) = 0;
+	virtual void body_set_move_h_exact(RID p_body, const Callable &p_callable) = 0;
+	virtual void body_set_move_v_exact(RID p_body, const Callable &p_callable) = 0;
 
 	virtual void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) = 0;
 	virtual void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) = 0;
@@ -554,6 +565,11 @@ public:
 	virtual bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 	virtual bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) = 0;
 	virtual bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+
+	virtual bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;
+	virtual bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;
+
+	virtual Callable body_get_squish_callable(RID p_body) = 0;
 
 	/* JOINT API */
 

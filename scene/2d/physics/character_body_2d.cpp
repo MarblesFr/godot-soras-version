@@ -33,21 +33,31 @@
 void CharacterBody2D::_bind_methods() {
 	GDVIRTUAL_BIND(_is_riding_solid, "solid");
 	GDVIRTUAL_BIND(_is_riding_one_way, "one_way");
-	GDVIRTUAL_BIND(_squish);
+	GDVIRTUAL_BIND(_squish, "move_dir", "amount_moved", "amount_left", "collided_with", "pusher");
 
 	ClassDB::bind_method(D_METHOD("set_ignores_one_way", "enabled"), &CharacterBody2D::set_ignores_one_way);
 	ClassDB::bind_method(D_METHOD("is_ignores_one_way_enabled"), &CharacterBody2D::is_ignores_one_way_enabled);
 
+	ClassDB::bind_method(D_METHOD("is_riding_solid", "solid"), &CharacterBody2D::_is_riding_solid);
+	ClassDB::bind_method(D_METHOD("is_riding_one_way", "one_way"), &CharacterBody2D::_is_riding_one_way);
+	ClassDB::bind_method(D_METHOD("squish", "move_dir", "amount_moved", "amount_left", "collided_with", "pusher"), &CharacterBody2D::_squish);
+
+	ClassDB::bind_method(D_METHOD("set_carry_speed", "speed"), &CharacterBody2D::set_carry_speed);
+	ClassDB::bind_method(D_METHOD("get_carry_speed"), &CharacterBody2D::get_carry_speed);
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ignores_one_way"), "set_ignores_one_way", "is_ignores_one_way_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "carry_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_carry_speed", "get_carry_speed");
 }
 
 CharacterBody2D::CharacterBody2D() :
 		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_ACTOR) {
 	PhysicsServer2D::get_singleton()->body_set_is_riding_solid(get_rid(), callable_mp(this, &CharacterBody2D::_is_riding_solid));
 	PhysicsServer2D::get_singleton()->body_set_is_riding_one_way(get_rid(), callable_mp(this, &CharacterBody2D::_is_riding_one_way));
+	PhysicsServer2D::get_singleton()->body_set_squish(get_rid(), callable_mp(this, &CharacterBody2D::_squish));
+	PhysicsServer2D::get_singleton()->body_set_carry_speed_sync_callback(get_rid(), callable_mp(this, &CharacterBody2D::_carry_speed_changed));
 }
 
-bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback) {
+bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
 	int move_dir = SIGN(p_amount);
 	Vector2i move_dir_vector = Vector2i(move_dir, 0);
 	int amount_moved = 0;
@@ -60,7 +70,7 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback)
 			position_delta.x = 0;
 			if (p_callback.is_valid())
 			{
-				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider);
+				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
 			}
 			return true;
 		}
@@ -71,7 +81,7 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback)
 	return false;
 }
 
-bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback) {
+bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
 	int move_dir = SIGN(p_amount);
 	Vector2i move_dir_vector = Vector2i(0, move_dir);
 	int amount_moved = 0;
@@ -84,7 +94,7 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback)
 			position_delta.y = 0;
 			if (p_callback.is_valid())
 			{
-				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider);
+				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
 			}
 			return true;
 		}
@@ -95,7 +105,7 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback)
 				position_delta.y = 0;
 				if (p_callback.is_valid())
 				{
-					p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider);
+					p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
 				}
 				return true;
 			}
@@ -137,6 +147,45 @@ bool CharacterBody2D::_is_riding_one_way(const RID &p_one_way) {
 	return result;
 }
 
-void CharacterBody2D::_squish() {
-	GDVIRTUAL_CALL(_squish);
+void CharacterBody2D::_squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, const RID &p_collided_with, const RID &p_pusher) {
+	GDVIRTUAL_CALL(_squish, p_move_dir, p_amount_moved, p_amount_left, p_collided_with, p_pusher);
+}
+
+void CharacterBody2D::set_carry_speed(const Vector2 &p_speed){
+	_carry_speed_changed(p_speed);
+	if (current_carry_speed != p_speed) {
+		PhysicsServer2D::get_singleton()->body_set_carry_speed(get_rid(), p_speed);
+	}
+}
+
+Vector2 CharacterBody2D::get_carry_speed() const {
+	if (current_carry_speed.is_zero_approx()) {
+		return last_carry_speed;
+	}
+	return current_carry_speed;
+}
+
+void CharacterBody2D::_carry_speed_changed(const Vector2 &p_speed){
+	current_carry_speed = p_speed;
+	if (!p_speed.is_zero_approx() && CARRY_SPEED_GRACE > 0.0f) {
+		last_carry_speed = p_speed;
+		carry_speed_timer = CARRY_SPEED_GRACE;
+	}
+}
+
+void CharacterBody2D::_notification(int p_what) {
+	switch (p_what) {
+		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
+			_carry_speed_changed(Vector2());
+			if (carry_speed_timer > 0.0f) {
+				carry_speed_timer -= get_physics_process_delta_time();
+				if (carry_speed_timer <= 0.0f) {
+					last_carry_speed = Vector2();
+				}
+			}
+		} break;
+		case NOTIFICATION_READY: {
+			set_physics_process_internal(true);
+		} break;
+	}
 }

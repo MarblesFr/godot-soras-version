@@ -51,11 +51,11 @@ public:
 
 	bool move_h(real_t p_amount, const Callable &p_callback = Callable());
 	bool move_v(real_t p_amount, const Callable &p_callback = Callable());
-	virtual bool move_h_exact(int32_t p_amount, const Callable &p_callback) {
+	virtual bool move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) {
 		translate(Vector2i(p_amount, 0));
 		return false;
 	};
-	virtual bool move_v_exact(int32_t p_amount, const Callable &p_callback) {
+	virtual bool move_v_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) {
 		translate(Vector2i(0, p_amount));
 		return false;
 	};
@@ -80,29 +80,11 @@ public:
 	void add_collision_exception_with(Node *p_node); //must be physicsbody
 	void remove_collision_exception_with(Node *p_node);
 
-	bool _move_h_exact(int32_t p_amount, const Callable &p_callback);
-	bool _move_v_exact(int32_t p_amount, const Callable &p_callback);
+	bool _move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+	bool _move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher = RID());
 
-	GDVIRTUAL2R(bool, _move_h_exact, int32_t, Callable)
-	GDVIRTUAL2R(bool, _move_v_exact, int32_t, Callable)
+	GDVIRTUAL3R(bool, _move_h_exact, int32_t, Callable, RID)
+	GDVIRTUAL3R(bool, _move_v_exact, int32_t, Callable, RID)
 };
-
-static int round_half_to_even(real_t value)
-{
-	const real_t r = round(value);
-	const real_t d = r - value;
-
-	if ((d != 0.5f) && (d != -0.5f))
-	{
-		return r;
-	}
-
-	if (fmod(r, 2.0f) == 0.0f)
-	{
-		return r;
-	}
-
-	return (int)(value - d);
-}
 
 #endif // PHYSICS_BODY_2D_H

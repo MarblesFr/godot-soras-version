@@ -765,6 +765,40 @@ bool GodotBody2D::is_riding_one_way(const RID &p_rid) {
 	return false;
 }
 
+void GodotBody2D::set_carry_speed_sync_callback(const Callable &p_callable) {
+	body_carry_speed_callback = p_callable;
+}
+
+void GodotBody2D::set_squish(const Callable &p_callable) {
+	squish_callable = p_callable;
+}
+
+Callable GodotBody2D::get_squish() {
+	return squish_callable;
+}
+
+void GodotBody2D::set_move_h_exact(const Callable &p_callable) {
+	move_h_exact_callable = p_callable;
+}
+
+bool GodotBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (move_h_exact_callable.is_valid()) {
+		return move_h_exact_callable.call(p_amount, p_callback, p_pusher);
+	}
+	return false;
+}
+
+void GodotBody2D::set_move_v_exact(const Callable &p_callable) {
+	move_v_exact_callable = p_callable;
+}
+
+bool GodotBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (move_v_exact_callable.is_valid()) {
+		return move_v_exact_callable.call(p_amount, p_callback, p_pusher);
+	}
+	return false;
+}
+
 GodotPhysicsDirectBodyState2D *GodotBody2D::get_direct_state() {
 	if (!direct_state) {
 		direct_state = memnew(GodotPhysicsDirectBodyState2D);

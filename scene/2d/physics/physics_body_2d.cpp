@@ -33,8 +33,8 @@
 void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("move_h", "amount", "collision_callback"), &PhysicsBody2D::move_h, DEFVAL(0.0f), DEFVAL(Callable()));
 	ClassDB::bind_method(D_METHOD("move_v", "amount", "collision_callback"), &PhysicsBody2D::move_v, DEFVAL(0.0f), DEFVAL(Callable()));
-	ClassDB::bind_method(D_METHOD("move_h_exact", "amount", "collision_callback"), &PhysicsBody2D::move_h_exact, DEFVAL(0), DEFVAL(Callable()));
-	ClassDB::bind_method(D_METHOD("move_v_exact", "amount", "collision_callback"), &PhysicsBody2D::move_v_exact, DEFVAL(0), DEFVAL(Callable()));
+	ClassDB::bind_method(D_METHOD("move_h_exact", "amount", "collision_callback", "pusher"), &PhysicsBody2D::_move_h_exact, DEFVAL(0), DEFVAL(Callable()), DEFVAL(RID()));
+	ClassDB::bind_method(D_METHOD("move_v_exact", "amount", "collision_callback", "pusher"), &PhysicsBody2D::_move_v_exact, DEFVAL(0), DEFVAL(Callable()), DEFVAL(RID()));
 	ClassDB::bind_method(D_METHOD("test_move", "from", "motion", "collision", "recovery_as_collision"), &PhysicsBody2D::test_move, DEFVAL(Variant()), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("get_gravity"), &PhysicsBody2D::get_gravity);
 
@@ -51,11 +51,10 @@ void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("collides_at_with", "delta", "body"), &PhysicsBody2D::collides_at_with);
 	ClassDB::bind_method(D_METHOD("collides_at_with_outside", "delta", "body"), &PhysicsBody2D::collides_at_with_outside);
 
-
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position_delta", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_position_delta", "get_position_delta");
 
-	GDVIRTUAL_BIND(_move_h_exact, "amount", "collision_callback");
-	GDVIRTUAL_BIND(_move_v_exact, "amount", "collision_callback");
+	GDVIRTUAL_BIND(_move_h_exact, "amount", "collision_callback", "pusher");
+	GDVIRTUAL_BIND(_move_v_exact, "amount", "collision_callback", "pusher");
 }
 
 PhysicsBody2D::PhysicsBody2D(PhysicsServer2D::BodyMode p_mode, PhysicsServer2D::ColliderType p_type) :
@@ -63,11 +62,13 @@ PhysicsBody2D::PhysicsBody2D(PhysicsServer2D::BodyMode p_mode, PhysicsServer2D::
 	set_body_mode(p_mode);
 	set_collider_type(p_type);
 	set_pickable(false);
+	PhysicsServer2D::get_singleton()->body_set_move_h_exact(get_rid(), callable_mp(this, &PhysicsBody2D::_move_h_exact));
+	PhysicsServer2D::get_singleton()->body_set_move_v_exact(get_rid(), callable_mp(this, &PhysicsBody2D::_move_v_exact));
 }
 
 bool PhysicsBody2D::move_h(real_t p_amount, const Callable &p_callback) {
 	position_delta.x += p_amount;
-	int whole_move = round_half_to_even(position_delta.x);
+	int whole_move = Math::round_half_to_even(position_delta.x);
 	if (whole_move == 0) {
 		return false;
 	}
@@ -77,7 +78,7 @@ bool PhysicsBody2D::move_h(real_t p_amount, const Callable &p_callback) {
 
 bool PhysicsBody2D::move_v(real_t p_amount, const Callable &p_callback) {
 	position_delta.y += p_amount;
-	int whole_move = round_half_to_even(position_delta.y);
+	int whole_move = Math::round_half_to_even(position_delta.y);
 	if (whole_move == 0) {
 		return false;
 	}
@@ -187,18 +188,18 @@ void PhysicsBody2D::remove_collision_exception_with(Node *p_node) {
 	PhysicsServer2D::get_singleton()->body_remove_collision_exception(get_rid(), physics_body->get_rid());
 }
 
-bool PhysicsBody2D::_move_h_exact(int32_t p_amount, const Callable &p_callback) {
+bool PhysicsBody2D::_move_h_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
 	bool result = false;
-	if (GDVIRTUAL_CALL(_move_h_exact, p_amount, p_callback, result)) {
+	if (GDVIRTUAL_CALL(_move_h_exact, p_amount, p_callback, p_pusher, result)) {
 		return result;
 	}
-	return move_h_exact(p_amount, p_callback);
+	return move_h_exact(p_amount, p_callback, p_pusher);
 }
 
-bool PhysicsBody2D::_move_v_exact(int32_t p_amount, const Callable &p_callback) {
+bool PhysicsBody2D::_move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
 	bool result = false;
-	if (GDVIRTUAL_CALL(_move_v_exact, p_amount, p_callback, result)) {
+	if (GDVIRTUAL_CALL(_move_v_exact, p_amount, p_callback, p_pusher, result)) {
 		return result;
 	}
-	return move_v_exact(p_amount, p_callback);
+	return move_v_exact(p_amount, p_callback, p_pusher);
 }

@@ -389,6 +389,9 @@ public:
 	EXBIND2(body_set_pickable, RID, bool)
 	EXBIND2(body_set_collidable, RID, bool)
 
+	EXBIND2(body_set_carry_speed_sync_callback, RID, const Callable &)
+	EXBIND2(body_set_carry_speed, RID, const Vector2 &)
+
 	EXBIND1R(PhysicsDirectBodyState2D *, body_get_direct_state, RID)
 
 	GDVIRTUAL6RC(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
@@ -398,9 +401,17 @@ public:
 
 	EXBIND2(body_set_is_riding_solid, RID, const Callable &)
 	EXBIND2(body_set_is_riding_one_way, RID, const Callable &)
+	EXBIND2(body_set_squish, RID, const Callable &)
+	EXBIND2(body_set_move_h_exact, RID, const Callable &)
+	EXBIND2(body_set_move_v_exact, RID, const Callable &)
 
 	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_solid, RID)
 	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_one_way, RID)
+
+	GDVIRTUAL4RC(bool, _body_move_h_exact, RID, int32_t, Callable, RID)
+	GDVIRTUAL4RC(bool, _body_move_v_exact, RID, int32_t, Callable, RID)
+
+	GDVIRTUAL1RC(Callable, _body_get_squish_callable, RID)
 
 	void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {
 		r_bodies.clear();
@@ -418,6 +429,24 @@ public:
 		for (int i = 0; i < ret.size(); i++) {
 			r_bodies.push_back(ret[i]);
 		}
+	}
+
+	bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
+		bool ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_body_move_h_exact, p_body, p_amount, p_callback, p_pusher, ret);
+		return ret;
+	}
+
+	bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
+		bool ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_body_move_v_exact, p_body, p_amount, p_callback, p_pusher, ret);
+		return ret;
+	}
+
+	Callable body_get_squish_callable(RID p_body) override {
+		Callable ret = Callable();
+		GDVIRTUAL_REQUIRED_CALL(_body_get_squish_callable, p_body, ret);
+		return ret;
 	}
 
 	thread_local static const HashSet<RID> *exclude_bodies;

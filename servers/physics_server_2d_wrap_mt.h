@@ -255,8 +255,14 @@ public:
 	FUNC2(body_set_pickable, RID, bool);
 	FUNC2(body_set_collidable, RID, bool);
 
+	FUNC2(body_set_carry_speed_sync_callback, RID, const Callable &);
+	FUNC2(body_set_carry_speed, RID, const Vector2 &);
+
 	FUNC2(body_set_is_riding_solid, RID, const Callable &);
 	FUNC2(body_set_is_riding_one_way, RID, const Callable &);
+	FUNC2(body_set_squish, RID, const Callable &);
+	FUNC2(body_set_move_h_exact, RID, const Callable &);
+	FUNC2(body_set_move_v_exact, RID, const Callable &);
 
 	void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {
 		ERR_FAIL_COND(!Thread::is_main_thread());
@@ -266,6 +272,21 @@ public:
 	void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override {
 		ERR_FAIL_COND(!Thread::is_main_thread());
 		physics_server_2d->body_get_riding_bodies_one_way(p_body, r_bodies);
+	}
+
+	bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_move_h_exact(p_body, p_amount, p_callback, p_pusher);
+	}
+
+	bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_move_v_exact(p_body, p_amount, p_callback, p_pusher);
+	}
+
+	Callable body_get_squish_callable(RID p_body) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), Callable());
+		return physics_server_2d->body_get_squish_callable(p_body);
 	}
 
 	bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override {

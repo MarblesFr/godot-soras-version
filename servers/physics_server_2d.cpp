@@ -659,6 +659,18 @@ TypedArray<RID> PhysicsServer2D::_body_get_riding_bodies_one_way(RID p_body) {
 	return r_bodies;
 }
 
+bool PhysicsServer2D::_body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	return body_move_h_exact(p_body, p_amount, p_callback, p_pusher);
+}
+
+bool PhysicsServer2D::_body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	return body_move_v_exact(p_body, p_amount, p_callback, p_pusher);
+}
+
+Callable PhysicsServer2D::_body_get_squish_callable(RID p_body) {
+	return body_get_squish_callable(p_body);
+}
+
 ///////////////////////////////////////
 
 bool PhysicsServer2D::_body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result) {
@@ -834,6 +846,10 @@ void PhysicsServer2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("body_get_riding_bodies_solid", "body"), &PhysicsServer2D::_body_get_riding_bodies_solid);
 	ClassDB::bind_method(D_METHOD("body_get_riding_bodies_one_way", "body"), &PhysicsServer2D::_body_get_riding_bodies_one_way);
+
+	ClassDB::bind_method(D_METHOD("body_move_h_exact", "body", "amount", "callback", "pusher"), &PhysicsServer2D::_body_move_h_exact, DEFVAL(Callable()), DEFVAL(RID()));
+	ClassDB::bind_method(D_METHOD("body_move_v_exact", "body", "amount", "callback", "pusher"), &PhysicsServer2D::_body_move_v_exact, DEFVAL(Callable()), DEFVAL(RID()));
+	ClassDB::bind_method(D_METHOD("body_get_squish_callable", "body"), &PhysicsServer2D::_body_get_squish_callable);
 
 	ClassDB::bind_method(D_METHOD("body_test_motion", "body", "parameters", "result"), &PhysicsServer2D::_body_test_motion, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "from", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(DEFAULT_COLLIDER_FILTER));

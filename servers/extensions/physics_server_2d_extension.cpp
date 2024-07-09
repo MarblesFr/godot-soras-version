@@ -297,10 +297,18 @@ void PhysicsServer2DExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_body_set_pickable, "body", "pickable");
 	GDVIRTUAL_BIND(_body_set_collidable, "body", "collidable");
 
+	GDVIRTUAL_BIND(_body_set_carry_speed_sync_callback, "body", "callable");
+	GDVIRTUAL_BIND(_body_set_carry_speed, "body", "speed");
+
 	GDVIRTUAL_BIND(_body_get_direct_state, "body");
 
 	GDVIRTUAL_BIND(_body_get_riding_bodies_solid, "body");
 	GDVIRTUAL_BIND(_body_get_riding_bodies_one_way, "body");
+
+	GDVIRTUAL_BIND(_body_move_h_exact, "body", "amount", "callback", "pusher");
+	GDVIRTUAL_BIND(_body_move_v_exact, "body", "amount", "callback", "pusher");
+
+	GDVIRTUAL_BIND(_body_get_squish_callable, "body");
 
 	GDVIRTUAL_BIND(_body_test_motion, "body", "from", "motion", "collide_separation_ray", "recovery_as_collision", "result");
 	GDVIRTUAL_BIND(_body_collides_at, "body", "from", "delta", "result", "collision_type_filter");

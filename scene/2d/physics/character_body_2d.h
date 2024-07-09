@@ -41,11 +41,23 @@ class CharacterBody2D : public PhysicsBody2D {
 	bool ignores_one_way = false;
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 
+	static constexpr float CARRY_SPEED_GRACE = 0.16f;
+
+	Vector2 current_carry_speed;
+	Vector2 last_carry_speed;
+	float carry_speed_timer;
+
+	void set_carry_speed(const Vector2 &p_speed);
+	Vector2 get_carry_speed() const;
+
+	void _carry_speed_changed(const Vector2 &p_speed);
+
 public:
-	bool move_h_exact(int32_t p_amount, const Callable &p_callback) override;
-	bool move_v_exact(int32_t p_amount, const Callable &p_callback) override;
+	bool move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) override;
+	bool move_v_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) override;
 
 	bool on_ground() override;
 
@@ -54,11 +66,11 @@ public:
 
 	bool _is_riding_solid(const RID &p_solid);
 	bool _is_riding_one_way(const RID &p_one_way);
-	void _squish();
+	void _squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, const RID &p_collided_with, const RID &p_pusher);
 
 	GDVIRTUAL1R(bool, _is_riding_solid, RID)
 	GDVIRTUAL1R(bool, _is_riding_one_way, RID)
-	GDVIRTUAL0(_squish)
+	GDVIRTUAL5(_squish, Vector2i, int32_t, int32_t, RID, RID)
 
 	CharacterBody2D();
 };

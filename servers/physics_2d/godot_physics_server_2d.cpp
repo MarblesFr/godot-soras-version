@@ -949,6 +949,24 @@ void GodotPhysicsServer2D::body_get_riding_bodies_one_way(RID p_body, List<RID> 
 	}
 };
 
+bool GodotPhysicsServer2D::body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	return body->move_h_exact(p_amount, p_callback, p_pusher);
+};
+
+bool GodotPhysicsServer2D::body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	return body->move_v_exact(p_amount, p_callback, p_pusher);
+};
+
+Callable GodotPhysicsServer2D::body_get_squish_callable(RID p_body) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, Callable());
+	return body->get_squish();
+};
+
 void GodotPhysicsServer2D::body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
@@ -1009,6 +1027,24 @@ void GodotPhysicsServer2D::body_set_is_riding_one_way(RID p_body, const Callable
 	body->set_is_riding_one_way(p_callable);
 }
 
+void GodotPhysicsServer2D::body_set_squish(RID p_body, const Callable &p_callable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_squish(p_callable);
+}
+
+void GodotPhysicsServer2D::body_set_move_h_exact(RID p_body, const Callable &p_callable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_move_h_exact(p_callable);
+}
+
+void GodotPhysicsServer2D::body_set_move_v_exact(RID p_body, const Callable &p_callable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_move_v_exact(p_callable);
+}
+
 bool GodotPhysicsServer2D::body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
@@ -1027,6 +1063,18 @@ void GodotPhysicsServer2D::body_set_collidable(RID p_body, bool p_collidable) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
 	body->set_collidable(p_collidable);
+}
+
+void GodotPhysicsServer2D::body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_carry_speed_sync_callback(p_callable);
+}
+
+void GodotPhysicsServer2D::body_set_carry_speed(RID p_body, const Vector2 &p_speed) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_carry_speed(p_speed);
 }
 
 bool GodotPhysicsServer2D::body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result) {
