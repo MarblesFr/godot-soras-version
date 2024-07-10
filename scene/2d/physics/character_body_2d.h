@@ -44,11 +44,14 @@ protected:
 	void _notification(int p_what);
 	static void _bind_methods();
 
-	static constexpr float CARRY_SPEED_GRACE = 0.16f;
+	float carry_speed_grace = 0.16f;
 
 	Vector2 current_carry_speed;
 	Vector2 last_carry_speed;
 	float carry_speed_timer;
+
+	void set_carry_speed_grace(const float &p_speed);
+	float get_carry_speed_grace() const;
 
 	void set_carry_speed(const Vector2 &p_speed);
 	Vector2 get_carry_speed() const;

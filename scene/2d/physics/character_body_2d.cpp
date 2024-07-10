@@ -45,8 +45,12 @@ void CharacterBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_carry_speed", "speed"), &CharacterBody2D::set_carry_speed);
 	ClassDB::bind_method(D_METHOD("get_carry_speed"), &CharacterBody2D::get_carry_speed);
 
+	ClassDB::bind_method(D_METHOD("set_carry_speed_grace", "time"), &CharacterBody2D::set_carry_speed_grace);
+	ClassDB::bind_method(D_METHOD("get_carry_speed_grace"), &CharacterBody2D::get_carry_speed_grace);
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ignores_one_way"), "set_ignores_one_way", "is_ignores_one_way_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "carry_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_carry_speed", "get_carry_speed");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "carry_speed_grace", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_carry_speed_grace", "get_carry_speed_grace");
 }
 
 CharacterBody2D::CharacterBody2D() :
@@ -165,11 +169,19 @@ Vector2 CharacterBody2D::get_carry_speed() const {
 	return current_carry_speed;
 }
 
+void CharacterBody2D::set_carry_speed_grace(const float &p_time){
+	carry_speed_grace = p_time;
+}
+
+float CharacterBody2D::get_carry_speed_grace() const {
+	return carry_speed_grace;
+}
+
 void CharacterBody2D::_carry_speed_changed(const Vector2 &p_speed){
 	current_carry_speed = p_speed;
-	if (!p_speed.is_zero_approx() && CARRY_SPEED_GRACE > 0.0f) {
+	if (!p_speed.is_zero_approx() && carry_speed_grace > 0.0f) {
 		last_carry_speed = p_speed;
-		carry_speed_timer = CARRY_SPEED_GRACE;
+		carry_speed_timer = carry_speed_grace;
 	}
 }
 
