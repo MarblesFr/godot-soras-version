@@ -223,6 +223,9 @@ class PhysicsServer2D : public Object {
 	virtual bool _body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other);
 	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, const int16_t &collision_type_filter = DEFAULT_COLLIDER_FILTER);
 
+	virtual int _body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other);
+	virtual int _body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other);
+
 protected:
 	static void _bind_methods();
 
@@ -565,6 +568,10 @@ public:
 	virtual bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 	virtual bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) = 0;
 	virtual bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+
+	// amount to move other body so it no longer overlaps
+	virtual int body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) = 0;
+	virtual int body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) = 0;
 
 	virtual bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;
 	virtual bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;

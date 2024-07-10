@@ -191,9 +191,12 @@ public:
 	int get_collision_pairs() const { return collision_pairs; }
 
 	bool test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::MotionParameters &p_parameters, PhysicsServer2D::MotionResult *r_result);
-	bool body_collides_at(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter);
-	bool body_collides_at_with(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, const GodotBody2D *p_other);
-	bool body_collides_at_all(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter);
+	bool body_collides_at(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter);
+	bool body_collides_at_with(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other);
+	bool body_collides_at_all(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter);
+
+	int body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other);
+	int body_push_amount_v(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other);
 
 	void set_debug_contacts(int p_amount) { contact_debug.resize(p_amount); }
 	_FORCE_INLINE_ bool is_debugging_contacts() const { return !contact_debug.is_empty(); }

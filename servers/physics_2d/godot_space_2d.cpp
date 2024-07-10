@@ -1014,13 +1014,13 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 	return collided;
 }
 
-bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
+bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
 	if (r_result) {
 		r_result->collider_id = ObjectID();
 		r_result->collider_shape = 0;
 	}
 
-	if(!p_body->is_collidable()) {
+	if (!p_body->is_collidable()) {
 		return false;
 	}
 
@@ -1078,14 +1078,14 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
 
-				if(!col_obj->is_collidable()) {
+				if (!col_obj->is_collidable()) {
 					continue;
 				}
 
-				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
+				if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
 					if (col_body) {
-						if(!(col_body->get_collider_type() & p_collision_type_filter)) {
+						if (!(col_body->get_collider_type() & p_collision_type_filter)) {
 							continue;
 						}
 					}
@@ -1093,7 +1093,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 
 				int col_shape_idx = intersection_query_subindex_results[i];
 
-//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
+				//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
 
 				bool excluded = false;
 				for (int k = 0; k < excluded_shape_pair_count; k++) {
@@ -1111,20 +1111,19 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di p_fr
 					r_result->collider_id = col_obj->get_instance_id();
 					r_result->collider_shape = col_shape_idx;
 					r_result->collision_local_shape = i;
-//					r_result->collision_normal = ccd.normal;
-//					r_result->collision_point = ccd.contact;
+					//					r_result->collision_normal = ccd.normal;
+					//					r_result->collision_point = ccd.contact;
 				}
 				return true;
 			}
 		}
 	}
 
-
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, const GodotBody2D *p_other) {
-	if(!p_body->is_collidable() || !p_other->is_collidable()) {
+bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other) {
+	if (!p_body->is_collidable() || !p_other->is_collidable()) {
 		return false;
 	}
 
@@ -1202,12 +1201,11 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di
 		}
 	}
 
-
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di p_from, const Vector2i p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
-	if(!p_body->is_collidable()) {
+bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+	if (!p_body->is_collidable()) {
 		return false;
 	}
 
@@ -1267,14 +1265,14 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
 
-				if(!col_obj->is_collidable()) {
+				if (!col_obj->is_collidable()) {
 					continue;
 				}
 
-				if(col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
+				if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
 					if (col_body) {
-						if(!(col_body->get_collider_type() & p_collision_type_filter)) {
+						if (!(col_body->get_collider_type() & p_collision_type_filter)) {
 							continue;
 						}
 					}
@@ -1282,7 +1280,7 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 
 				int col_shape_idx = intersection_query_subindex_results[i];
 
-//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
+				//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
 
 				bool excluded = false;
 				for (int k = 0; k < excluded_shape_pair_count; k++) {
@@ -1302,8 +1300,91 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 		}
 	}
 
-
 	return !r_bodies.is_empty();
+}
+
+int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other) {
+	if (p_direction == 0 || !body_collides_at_with(p_body, p_from, Vector2i(), p_other)) {
+		return 0;
+	}
+
+	int min_move = 0;
+	int current_move;
+
+	{
+		for (int body_shape_idx = 0; body_shape_idx < p_body->get_shape_count(); body_shape_idx++) {
+			if (p_body->is_shape_disabled(body_shape_idx)) {
+				continue;
+			}
+
+			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
+			shape_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_aabb));
+
+			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+
+			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
+				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
+
+				if (shape_aabb.intersects(other_shape_aabb)) {
+					if (p_direction > 0) {
+						current_move = shape_aabb.get_right() - other_shape_aabb.get_left();
+						if (current_move > min_move) {
+							min_move = current_move;
+						}
+					} else {
+						current_move = shape_aabb.get_left() - other_shape_aabb.get_right();
+						if (current_move < min_move) {
+							min_move = current_move;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return min_move;
+}
+
+int GodotSpace2D::body_push_amount_v(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other) {
+	if (p_direction == 0 || !body_collides_at_with(p_body, p_from, Vector2i(), p_other)) {
+		return 0;
+	}
+
+	int min_move = 0;
+	int current_move;
+
+	{
+		for (int body_shape_idx = 0; body_shape_idx < p_body->get_shape_count(); body_shape_idx++) {
+			if (p_body->is_shape_disabled(body_shape_idx)) {
+				continue;
+			}
+
+			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
+			shape_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_aabb));
+
+			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+
+			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
+				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
+
+				if (shape_aabb.intersects(other_shape_aabb)) {
+					if (p_direction > 0) {
+						current_move = shape_aabb.get_bottom() - other_shape_aabb.get_top();
+						if (current_move > min_move) {
+							min_move = current_move;
+						}
+					} else {
+						current_move = shape_aabb.get_top() - other_shape_aabb.get_bottom();
+						if (current_move < min_move) {
+							min_move = current_move;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return min_move;
 }
 
 // Assumes a valid collision pair, this should have been checked beforehand in the BVH or octree.

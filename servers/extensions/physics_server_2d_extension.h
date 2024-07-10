@@ -399,6 +399,9 @@ public:
 	GDVIRTUAL4RC(bool, _body_collides_at_with, RID, const Transform2Di &, const Vector2i &, const RID &)
 	GDVIRTUAL4RC(TypedArray<RID>, _body_collides_at_all, RID, const Transform2Di &, const Vector2i &, const int16_t &)
 
+	GDVIRTUAL4RC(int, _body_push_amount_h, RID, const Transform2Di &, const int &, const RID &)
+	GDVIRTUAL4RC(int, _body_push_amount_v, RID, const Transform2Di &, const int &, const RID &)
+
 	EXBIND2(body_set_is_riding_solid, RID, const Callable &)
 	EXBIND2(body_set_is_riding_one_way, RID, const Callable &)
 	EXBIND2(body_set_squish, RID, const Callable &)
@@ -465,26 +468,38 @@ public:
 		return ret;
 	}
 
-	bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at, p_body, from, delta, r_result, collision_type_filter, ret);
+		GDVIRTUAL_REQUIRED_CALL(_body_collides_at, p_body, p_from, p_delta, r_result, p_collision_type_filter, ret);
 		return ret;
 	}
 
-	bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) override {
+	bool body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_with, p_body, from, delta, p_other, ret);
+		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_with, p_body, p_from, p_delta, p_other, ret);
 		return ret;
 	}
 
-	bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		r_bodies.clear();
 		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_all, p_body, from, delta, collision_type_filter, ret);
+		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_all, p_body, p_from, p_delta, p_collision_type_filter, ret);
 		for (int i = 0; i < ret.size(); i++) {
 			r_bodies.push_back(ret[i]);
 		}
 		return !ret.is_empty();
+	}
+
+	int body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override {
+		int ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_body_push_amount_h, p_body, p_from, p_direction, p_other, ret);
+		return ret;
+	}
+
+	int body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override {
+		int ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_body_push_amount_v, p_body, p_from, p_direction, p_other, ret);
+		return ret;
 	}
 
 

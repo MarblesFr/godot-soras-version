@@ -231,6 +231,22 @@ struct [[nodiscard]] Rect2i {
 		return position + size;
 	}
 
+	_FORCE_INLINE_ int get_left() const {
+		return position.x;
+	}
+
+	_FORCE_INLINE_ int get_right() const {
+		return position.x + size.x;
+	}
+
+	_FORCE_INLINE_ int get_top() const {
+		return position.y;
+	}
+
+	_FORCE_INLINE_ int get_bottom() const {
+		return position.y + size.y;
+	}
+
 	operator String() const;
 	operator Rect2() const;
 

@@ -309,6 +309,16 @@ public:
 		return physics_server_2d->body_collides_at_all(p_body, from, delta, r_bodies, p_collision_type_filter);
 	}
 
+	int body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_push_amount_h(p_body, from, direction, p_other);
+	}
+
+	int body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->body_push_amount_v(p_body, from, direction, p_other);
+	}
+
 	// this function only works on physics process, errors and returns null otherwise
 	PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), nullptr);

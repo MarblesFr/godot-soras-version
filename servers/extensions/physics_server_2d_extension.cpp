@@ -315,6 +315,9 @@ void PhysicsServer2DExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_body_collides_at_with, "body", "from", "delta", "other");
 	GDVIRTUAL_BIND(_body_collides_at_all, "body", "from", "delta", "collision_type_filter");
 
+	GDVIRTUAL_BIND(_body_push_amount_h, "body", "from", "direction", "other");
+	GDVIRTUAL_BIND(_body_push_amount_v, "body", "from", "direction", "other");
+
 	/* JOINT API */
 
 	GDVIRTUAL_BIND(_joint_create);

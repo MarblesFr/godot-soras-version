@@ -276,6 +276,9 @@ public:
 	virtual bool body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) override;
 	virtual bool body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
 
+	virtual int body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
+	virtual int body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
+
 	// this function only works on physics process, errors and returns null otherwise
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override;
 

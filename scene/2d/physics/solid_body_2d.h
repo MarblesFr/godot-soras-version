@@ -43,9 +43,14 @@ class SolidBody2D : public PhysicsBody2D {
 protected:
 	static void _bind_methods();
 
+	Vector2 transfer_speed;
+
+	void set_transfer_speed(const Vector2 &p_speed);
+	Vector2 get_transfer_speed() const;
+
 public:
-	bool move_h_exact(int32_t move_h, const Callable &collisionCallback) override;
-	bool move_v_exact(int32_t move_v, const Callable &collisionCallback) override;
+	bool move_h_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
+	bool move_v_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
 
 	void set_one_way_collision(bool p_enable);
 	bool is_one_way_collision_enabled() const;
@@ -53,6 +58,11 @@ public:
 	void update_riders();
 
 	SolidBody2D();
+private:
+	void move_h_exact_solid(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
+	void move_h_exact_one_way(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
+	void move_v_exact_solid(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
+	void move_v_exact_one_way(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
 };
 
 #endif // SOLID_BODY_2D_H

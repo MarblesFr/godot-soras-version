@@ -707,6 +707,14 @@ TypedArray<RID> PhysicsServer2D::_body_collides_at_all(RID p_body, const Transfo
 	return r_bodies;
 }
 
+int PhysicsServer2D::_body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) {
+	return body_push_amount_h(p_body, from, direction, p_other);
+}
+
+int PhysicsServer2D::_body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) {
+	return body_push_amount_v(p_body, from, direction, p_other);
+}
+
 void PhysicsServer2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("world_boundary_shape_create"), &PhysicsServer2D::world_boundary_shape_create);
 	ClassDB::bind_method(D_METHOD("separation_ray_shape_create"), &PhysicsServer2D::separation_ray_shape_create);
@@ -855,6 +863,9 @@ void PhysicsServer2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "from", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("body_collides_at_with", "body", "from", "delta", "other"), &PhysicsServer2D::_body_collides_at_with);
 	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "from", "delta", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(DEFAULT_COLLIDER_FILTER));
+
+	ClassDB::bind_method(D_METHOD("body_push_amount_h", "body", "from", "direction", "other"), &PhysicsServer2D::_body_push_amount_h);
+	ClassDB::bind_method(D_METHOD("body_push_amount_v", "body", "from", "direction", "other"), &PhysicsServer2D::_body_push_amount_v);
 
 	ClassDB::bind_method(D_METHOD("body_get_direct_state", "body"), &PhysicsServer2D::body_get_direct_state);
 

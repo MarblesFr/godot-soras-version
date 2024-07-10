@@ -1126,6 +1126,37 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Transform2Di &
 	return body->get_space()->body_collides_at_all(body, p_from, p_delta, r_bodies, p_collision_type_filter);
 }
 
+int GodotPhysicsServer2D::body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	ERR_FAIL_NULL_V(body->get_space(), false);
+	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
+
+	GodotBody2D *other = body_owner.get_or_null(p_other);
+	ERR_FAIL_NULL_V(other, false);
+	ERR_FAIL_NULL_V(other->get_space(), false);
+	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+
+	_update_shapes();
+
+	return body->get_space()->body_push_amount_h(body, p_from, p_direction, other);
+}
+
+int GodotPhysicsServer2D::body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+	ERR_FAIL_NULL_V(body->get_space(), false);
+	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
+
+	GodotBody2D *other = body_owner.get_or_null(p_other);
+	ERR_FAIL_NULL_V(other, false);
+	ERR_FAIL_NULL_V(other->get_space(), false);
+	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+
+	_update_shapes();
+
+	return body->get_space()->body_push_amount_v(body, p_from, p_direction, other);
+}
 
 PhysicsDirectBodyState2D *GodotPhysicsServer2D::body_get_direct_state(RID p_body) {
 	ERR_FAIL_COND_V_MSG((using_threads && !doing_sync), nullptr, "Body state is inaccessible right now, wait for iteration or physics process notification.");
