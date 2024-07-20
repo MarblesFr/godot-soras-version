@@ -691,6 +691,8 @@ void main() {
 
 #if defined(USE_LIGHTING) && !defined(MODE_UNSHADED)
 
+	vec4 light_mix = vec4(0.0, 0.0, 0.0, 1.0);
+
 	// Directional Lights
 
 //	for (uint i = 0; i < canvas_data.directional_light_count; i++) {
@@ -839,11 +841,14 @@ void main() {
 
 #endif
 
-		light_blend_compute(light_base, light_color, color.rgb);
+		light_blend_compute(light_base, light_color, light_mix.rgb);
 #ifdef MODE_LIGHT_ONLY
 		light_only_alpha += light_color.a;
 #endif
 	}
+
+	color.rgb += light_mix.rgb * light_mix.a;
+//	color.rgb = min(color.rgb + (light_mix.rgb * light_mix.a), base_color.rgb);
 #endif
 
 #ifdef MODE_LIGHT_ONLY

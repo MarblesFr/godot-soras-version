@@ -74,6 +74,8 @@ public:
 
 	bool collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
+	TypedArray<RID> _collides_at_all(const Vector2i &p_delta, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+
 	virtual bool on_ground();
 
 	TypedArray<PhysicsBody2D> get_collision_exceptions();

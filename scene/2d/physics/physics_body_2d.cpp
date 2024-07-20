@@ -50,6 +50,7 @@ void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("collides_at_outside", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at_outside, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("collides_at_with", "delta", "body"), &PhysicsBody2D::collides_at_with);
 	ClassDB::bind_method(D_METHOD("collides_at_with_outside", "delta", "body"), &PhysicsBody2D::collides_at_with_outside);
+	ClassDB::bind_method(D_METHOD("collides_at_all", "delta", "collision_type_filter"), &PhysicsBody2D::_collides_at_all, DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
 
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position_delta", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_position_delta", "get_position_delta");
 
@@ -133,7 +134,7 @@ bool PhysicsBody2D::_collides_at(const Vector2i &p_delta, const Ref<PhysicsColli
 }
 
 bool PhysicsBody2D::collides_at_outside(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
-	return !collides_at(Vector2i(0, 0), r_result) && collides_at(p_delta, r_result, p_collision_type_filter);
+	return !collides_at(Vector2i(0, 0), nullptr, p_collision_type_filter) && collides_at(p_delta, r_result, p_collision_type_filter);
 }
 
 bool PhysicsBody2D::_collides_at_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result, const int16_t p_collision_type_filter) {
@@ -155,6 +156,16 @@ bool PhysicsBody2D::collides_at_with_outside(const Vector2i &p_delta, const RID 
 
 bool PhysicsBody2D::collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
 	return PhysicsServer2D::get_singleton()->body_collides_at_all(get_rid(), get_global_transform_i(), p_delta, r_bodies, p_collision_type_filter);
+}
+
+TypedArray<RID> PhysicsBody2D::_collides_at_all(const Vector2i &p_delta, const int16_t p_collision_type_filter) {
+	List<RID> bodies;
+	TypedArray<RID> r_bodies;
+	PhysicsServer2D::get_singleton()->body_collides_at_all(get_rid(), get_global_transform_i(), p_delta, bodies, p_collision_type_filter);
+	for (const auto &item : bodies) {
+		r_bodies.push_back(item);
+	}
+	return r_bodies;
 }
 
 bool PhysicsBody2D::on_ground() {
