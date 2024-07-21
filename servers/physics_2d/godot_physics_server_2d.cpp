@@ -1126,6 +1126,22 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Transform2Di &
 	return body->get_space()->body_collides_at_all(body, p_from, p_delta, r_bodies, p_collision_type_filter);
 }
 
+bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, Transform2Di *p_other_from) {
+	GodotArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL_V(area, false);
+	ERR_FAIL_NULL_V(area->get_space(), false);
+	ERR_FAIL_COND_V(area->get_space()->is_locked(), false);
+
+	GodotBody2D *other = body_owner.get_or_null(p_other);
+	ERR_FAIL_NULL_V(other, false);
+	ERR_FAIL_NULL_V(other->get_space(), false);
+	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+
+	_update_shapes();
+
+	return area->get_space()->area_collides_at_with(area, p_from, p_delta, other, p_other_from);
+}
+
 int GodotPhysicsServer2D::body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);

@@ -707,6 +707,15 @@ TypedArray<RID> PhysicsServer2D::_body_collides_at_all(RID p_body, const Transfo
 	return r_bodies;
 }
 
+bool PhysicsServer2D::_area_collides_at_with(RID p_area, const Transform2Di &from, const Vector2i &delta, const RID &p_other, const Ref<Transform2DiRef> &p_other_from) {
+	Transform2Di *other_from_ptr = nullptr;
+	if (p_other_from.is_valid()) {
+		other_from_ptr = p_other_from->get_transform2Di_ptr();
+	}
+
+	return area_collides_at_with(p_area, from, delta, p_other, other_from_ptr);
+}
+
 int PhysicsServer2D::_body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) {
 	return body_push_amount_h(p_body, from, direction, p_other);
 }
@@ -864,6 +873,8 @@ void PhysicsServer2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("body_collides_at_with", "body", "from", "delta", "other"), &PhysicsServer2D::_body_collides_at_with);
 	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "from", "delta", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(DEFAULT_COLLIDER_FILTER));
 
+	ClassDB::bind_method(D_METHOD("area_collides_at_with", "area", "from", "delta", "other", "other_from"), &PhysicsServer2D::_area_collides_at_with);
+
 	ClassDB::bind_method(D_METHOD("body_push_amount_h", "body", "from", "direction", "other"), &PhysicsServer2D::_body_push_amount_h);
 	ClassDB::bind_method(D_METHOD("body_push_amount_v", "body", "from", "direction", "other"), &PhysicsServer2D::_body_push_amount_v);
 
@@ -944,6 +955,7 @@ void PhysicsServer2D::_bind_methods() {
 	BIND_ENUM_CONSTANT(COLLIDER_TYPE_SOLID);
 	BIND_ENUM_CONSTANT(COLLIDER_TYPE_SIMULATED);
 	BIND_ENUM_CONSTANT(COLLIDER_TYPE_ONE_WAY);
+	BIND_ENUM_CONSTANT(COLLIDER_TYPE_PLAYER);
 
 	BIND_ENUM_CONSTANT(BODY_PARAM_BOUNCE);
 	BIND_ENUM_CONSTANT(BODY_PARAM_FRICTION);

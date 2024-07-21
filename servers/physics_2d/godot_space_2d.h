@@ -195,6 +195,8 @@ public:
 	bool body_collides_at_with(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other);
 	bool body_collides_at_all(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter);
 
+	bool area_collides_at_with(GodotArea2D *p_area, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other, Transform2Di *p_other_from = nullptr);
+
 	int body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other);
 	int body_push_amount_v(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other);
 

@@ -193,6 +193,12 @@ public:
 	void set_audio_bus_name(const StringName &p_audio_bus);
 	StringName get_audio_bus_name() const;
 
+	bool collides_at_with(const Vector2i &p_delta, const RID &p_body);
+	bool collides_with(const RID &p_body);
+
+	bool collides_at_with_use_from(const Vector2i &p_delta, const RID &p_body, const Transform2Di &p_other_from = Transform2Di());
+	bool collides_with_use_from(const RID &p_body, const Transform2Di &p_other_from = Transform2Di());
+
 	Area2D();
 	~Area2D();
 };

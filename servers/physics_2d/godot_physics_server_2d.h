@@ -276,6 +276,8 @@ public:
 	virtual bool body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) override;
 	virtual bool body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
 
+	virtual bool area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, Transform2Di *p_other_from = nullptr) override;
+
 	virtual int body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
 	virtual int body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
 

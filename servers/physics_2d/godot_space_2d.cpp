@@ -1303,6 +1303,95 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 	return !r_bodies.is_empty();
 }
 
+bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other, Transform2Di *p_other_from) {
+	if (!p_other->is_collidable()) {
+		return false;
+	}
+
+	Rect2i area_aabb;
+
+	bool shapes_found = false;
+
+	for (int i = 0; i < p_area->get_shape_count(); i++) {
+		if (p_area->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!shapes_found) {
+			area_aabb = p_area->get_shape_aabb(i);
+			shapes_found = true;
+		} else {
+			area_aabb = area_aabb.merge(p_area->get_shape_aabb(i));
+		}
+	}
+
+	if (!shapes_found) {
+		return false;
+	}
+
+	Rect2i other_aabb;
+
+	bool other_shapes_found = false;
+
+	for (int i = 0; i < p_other->get_shape_count(); i++) {
+		if (p_other->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!other_shapes_found) {
+			other_aabb = p_other->get_shape_aabb(i);
+			other_shapes_found = true;
+		} else {
+			other_aabb = area_aabb.merge(p_other->get_shape_aabb(i));
+		}
+	}
+
+	if (!other_shapes_found) {
+		return false;
+	}
+
+	// Undo the current transform the physics server is aware of and apply the provided one
+	area_aabb = p_from.xform(p_area->get_inv_transform().xform(area_aabb));
+
+	if (p_other_from != nullptr) {
+		other_aabb = p_other_from->xform(p_other->get_inv_transform().xform(other_aabb));
+	}
+
+	{
+		Rect2i moved_aabb = area_aabb;
+		moved_aabb.position += p_delta;
+
+		if (!moved_aabb.intersects(other_aabb)) {
+			return false;
+		}
+
+		for (int area_shape_idx = 0; area_shape_idx < p_area->get_shape_count(); area_shape_idx++) {
+			if (p_area->is_shape_disabled(area_shape_idx)) {
+				continue;
+			}
+
+			Rect2i shape_moved_aabb = p_area->get_shape_aabb(area_shape_idx);
+			shape_moved_aabb = p_from.xform(p_area->get_inv_transform().xform(shape_moved_aabb));
+			shape_moved_aabb.position += p_delta;
+
+			GodotShape2D *area_shape = p_area->get_shape(area_shape_idx);
+
+			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
+				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
+				if (p_other_from != nullptr) {
+					other_shape_aabb = p_other_from->xform(p_other->get_inv_transform().xform(other_shape_aabb));
+				}
+
+				if (shape_moved_aabb.intersects(other_shape_aabb)) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other) {
 	if (p_direction == 0 || !body_collides_at_with(p_body, p_from, Vector2i(), p_other)) {
 		return 0;

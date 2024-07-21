@@ -185,6 +185,10 @@ typedef PhysicsServer2D::MotionResult PhysicsServer2DExtensionMotionResult;
 
 GDVIRTUAL_NATIVE_PTR(PhysicsServer2DExtensionMotionResult)
 
+typedef Transform2Di PhysicsServer2DExtensionTransform2Di;
+
+GDVIRTUAL_NATIVE_PTR(PhysicsServer2DExtensionTransform2Di)
+
 typedef PhysicsServer2D::CollisionResult PhysicsServer2DExtensionCollisionResult;
 
 GDVIRTUAL_NATIVE_PTR(PhysicsServer2DExtensionCollisionResult)
@@ -399,6 +403,8 @@ public:
 	GDVIRTUAL4RC(bool, _body_collides_at_with, RID, const Transform2Di &, const Vector2i &, const RID &)
 	GDVIRTUAL4RC(TypedArray<RID>, _body_collides_at_all, RID, const Transform2Di &, const Vector2i &, const int16_t &)
 
+	GDVIRTUAL5RC(bool, _area_collides_at_with, RID, const Transform2Di &, const Vector2i &, const RID &, GDExtensionPtr<PhysicsServer2DExtensionTransform2Di>)
+
 	GDVIRTUAL4RC(int, _body_push_amount_h, RID, const Transform2Di &, const int &, const RID &)
 	GDVIRTUAL4RC(int, _body_push_amount_v, RID, const Transform2Di &, const int &, const RID &)
 
@@ -488,6 +494,13 @@ public:
 			r_bodies.push_back(ret[i]);
 		}
 		return !ret.is_empty();
+	}
+
+
+	bool area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, Transform2Di *p_other_from = nullptr) override {
+		bool ret = false;
+		GDVIRTUAL_REQUIRED_CALL(_area_collides_at_with, p_area, p_from, p_delta, p_other, p_other_from, ret);
+		return ret;
 	}
 
 	int body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override {

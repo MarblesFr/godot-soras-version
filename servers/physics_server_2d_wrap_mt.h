@@ -313,6 +313,11 @@ public:
 		return physics_server_2d->body_collides_at_all(p_body, from, delta, r_bodies, p_collision_type_filter);
 	}
 
+	bool area_collides_at_with(RID p_area, const Transform2Di &from, const Vector2i &delta, const RID &p_other, Transform2Di *p_other_from = nullptr) override {
+		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
+		return physics_server_2d->area_collides_at_with(p_area, from, delta, p_other, p_other_from);
+	}
+
 	int body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
 		return physics_server_2d->body_push_amount_h(p_body, from, direction, p_other);
