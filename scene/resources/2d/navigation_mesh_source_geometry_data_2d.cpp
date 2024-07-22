@@ -165,6 +165,7 @@ void NavigationMeshSourceGeometryData2D::add_obstruction_outline(const PackedVec
 
 void NavigationMeshSourceGeometryData2D::add_obstruction_outline_i(const PackedVector2iArray &p_shape_outline) {
 	if (p_shape_outline.size() > 1) {
+		RWLockWrite write_lock(geometry_rwlock);
 		Vector<Vector2> obstruction_outline;
 		obstruction_outline.resize(p_shape_outline.size());
 		for (int i = 0; i < p_shape_outline.size(); i++) {
