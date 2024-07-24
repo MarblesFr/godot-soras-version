@@ -298,34 +298,34 @@ public:
 		return physics_server_2d->body_test_motion(p_body, p_parameters, r_result);
 	}
 
-	bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at(p_body, from, delta, r_result, p_collision_type_filter);
+		return physics_server_2d->body_collides_at(p_body, delta, r_result, p_collision_type_filter);
 	}
 
-	bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) override {
+	bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at_with(p_body, from, delta, p_other);
+		return physics_server_2d->body_collides_at_with(p_body, delta, p_other);
 	}
 
-	bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at_all(p_body, from, delta, r_bodies, p_collision_type_filter);
+		return physics_server_2d->body_collides_at_all(p_body, delta, r_bodies, p_smear, p_collision_type_filter);
 	}
 
-	bool area_collides_at_with(RID p_area, const Transform2Di &from, const Vector2i &delta, const RID &p_other, Transform2Di *p_other_from = nullptr) override {
+	bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->area_collides_at_with(p_area, from, delta, p_other, p_other_from);
+		return physics_server_2d->area_collides_at_with(p_area, delta, p_other);
 	}
 
-	int body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) override {
+	int body_push_amount_h(RID p_body, const int direction, const RID &p_other) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_push_amount_h(p_body, from, direction, p_other);
+		return physics_server_2d->body_push_amount_h(p_body, direction, p_other);
 	}
 
-	int body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) override {
+	int body_push_amount_v(RID p_body, const int direction, const RID &p_other) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_push_amount_v(p_body, from, direction, p_other);
+		return physics_server_2d->body_push_amount_v(p_body, direction, p_other);
 	}
 
 	// this function only works on physics process, errors and returns null otherwise

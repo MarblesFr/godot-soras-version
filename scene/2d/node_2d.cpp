@@ -154,6 +154,9 @@ void Node2D::reparent(Node *p_parent, bool p_keep_global_transform) {
 
 void Node2D::set_position(const Point2i &p_pos) {
 	ERR_THREAD_GUARD;
+	if (position == p_pos) {
+		return;
+	}
 	if (_is_xform_dirty()) {
 		_update_xform_values();
 	}

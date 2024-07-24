@@ -45,12 +45,11 @@ bool SolidBody2D::move_h_exact(int32_t p_amount, const Callable &p_collision_cal
 }
 
 void SolidBody2D::move_h_exact_solid(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
-	translate(Vector2i(p_amount, 0));
 	List<RID> bodies;
 	if (is_collidable()) {
-		if (collides_at_all(Vector2i(), bodies, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
+		if (collides_at_all(Vector2i(p_amount, 0), bodies, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
 			for (const auto &other : bodies) {
-				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_h(get_rid(), get_global_transform_i(), p_amount, other);
+				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_h(get_rid(), p_amount, other);
 				set_collidable(false);
 				PhysicsServer2D::get_singleton()->body_move_h_exact(other, local_amount, PhysicsServer2D::get_singleton()->body_get_squish_callable(other), get_rid());
 				PhysicsServer2D::get_singleton()->body_set_carry_speed(other, transfer_speed);
@@ -69,10 +68,10 @@ void SolidBody2D::move_h_exact_solid(int32_t p_amount, const Callable &p_collisi
 			set_collidable(true);
 		}
 	}
+	translate(Vector2i(p_amount, 0));
 }
 
 void SolidBody2D::move_h_exact_one_way(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
-	translate(Vector2i(p_amount, 0));
 	if (is_collidable()) {
 		for (const auto &other : riders) {
 			set_collidable(false);
@@ -81,6 +80,7 @@ void SolidBody2D::move_h_exact_one_way(int32_t p_amount, const Callable &p_colli
 			set_collidable(true);
 		}
 	}
+	translate(Vector2i(p_amount, 0));
 }
 
 bool SolidBody2D::move_v_exact(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
@@ -94,12 +94,11 @@ bool SolidBody2D::move_v_exact(int32_t p_amount, const Callable &p_collision_cal
 }
 
 void SolidBody2D::move_v_exact_solid(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
-	translate(Vector2i(0, p_amount));
 	List<RID> bodies;
 	if (is_collidable()) {
-		if (collides_at_all(Vector2i(), bodies, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
+		if (collides_at_all(Vector2i(0, p_amount), bodies, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
 			for (const auto &other : bodies) {
-				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_v(get_rid(), get_global_transform_i(), p_amount, other);
+				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_v(get_rid(), p_amount, other);
 				set_collidable(false);
 				PhysicsServer2D::get_singleton()->body_move_v_exact(other, local_amount, PhysicsServer2D::get_singleton()->body_get_squish_callable(other), get_rid());
 				PhysicsServer2D::get_singleton()->body_set_carry_speed(other, transfer_speed);
@@ -118,10 +117,10 @@ void SolidBody2D::move_v_exact_solid(int32_t p_amount, const Callable &p_collisi
 			set_collidable(true);
 		}
 	}
+	translate(Vector2i(0, p_amount));
 }
 
 void SolidBody2D::move_v_exact_one_way(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
-	translate(Vector2i(0, p_amount));
 	List<RID> bodies;
 	if (is_collidable()) {
 		for (const auto &other : riders) {
@@ -130,12 +129,12 @@ void SolidBody2D::move_v_exact_one_way(int32_t p_amount, const Callable &p_colli
 			PhysicsServer2D::get_singleton()->body_set_carry_speed(other, transfer_speed);
 			set_collidable(true);
 		}
-		if (p_amount < 0 && collides_at_all(Vector2i(0, p_amount), bodies, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
+		if (p_amount < 0 && collides_at_all(Vector2i(0, p_amount), bodies, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR)) {
 			for (const auto &other : bodies) {
 				if (riders.find(other) != nullptr || collides_at_with(Vector2i(), other)) {
 					continue;
 				}
-				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_v(get_rid(), get_global_transform_i(), p_amount, other);
+				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_v(get_rid(), p_amount, other);
 				set_collidable(false);
 				PhysicsServer2D::get_singleton()->body_move_v_exact(other, local_amount, PhysicsServer2D::get_singleton()->body_get_squish_callable(other), get_rid());
 				PhysicsServer2D::get_singleton()->body_set_carry_speed(other, transfer_speed);
@@ -143,6 +142,7 @@ void SolidBody2D::move_v_exact_one_way(int32_t p_amount, const Callable &p_colli
 			}
 		}
 	}
+	translate(Vector2i(0, p_amount));
 }
 
 void SolidBody2D::set_one_way_collision(bool p_enable) {
@@ -173,7 +173,7 @@ void SolidBody2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "transfer_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_transfer_speed", "get_transfer_speed");
 }
 
-void SolidBody2D::set_transfer_speed(const Vector2 &p_speed){
+void SolidBody2D::set_transfer_speed(const Vector2 &p_speed) {
 	transfer_speed = p_speed;
 }
 

@@ -204,7 +204,6 @@ public:
 class PhysicsTestMotionParameters2D;
 class PhysicsTestMotionResult2D;
 class PhysicsCollisionResult2D;
-class Transform2DiRef;
 
 class PhysicsServer2D : public Object {
 	GDCLASS(PhysicsServer2D, Object);
@@ -220,14 +219,14 @@ class PhysicsServer2D : public Object {
 	virtual Callable _body_get_squish_callable(RID p_body);
 
 	virtual bool _body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result = Ref<PhysicsTestMotionResult2D>());
-	virtual bool _body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
-	virtual bool _body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other);
-	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
+	virtual bool _body_collides_at(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
+	virtual bool _body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other);
+	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Vector2i &p_delta, const bool p_smear = false, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
 
-	virtual bool _area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, const Ref<Transform2DiRef> &p_other_from = Ref<Transform2DiRef>());
+	virtual bool _area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other);
 
-	virtual int _body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other);
-	virtual int _body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other);
+	virtual int _body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other);
+	virtual int _body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other);
 
 protected:
 	static void _bind_methods();
@@ -569,15 +568,15 @@ public:
 	virtual void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) = 0;
 
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) = 0;
-	virtual bool body_collides_at(RID p_body, const Transform2Di &from, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
-	virtual bool body_collides_at_with(RID p_body, const Transform2Di &from, const Vector2i &delta, const RID &p_other) = 0;
-	virtual bool body_collides_at_all(RID p_body, const Transform2Di &from, const Vector2i &delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) = 0;
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 
-	virtual bool area_collides_at_with(RID p_area, const Transform2Di &from, const Vector2i &delta, const RID &p_other, Transform2Di *p_other_from = nullptr) = 0;
+	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) = 0;
 
 	// amount to move other body so it no longer overlaps
-	virtual int body_push_amount_h(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) = 0;
-	virtual int body_push_amount_v(RID p_body, const Transform2Di &from, const int direction, const RID &p_other) = 0;
+	virtual int body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other) = 0;
+	virtual int body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other) = 0;
 
 	virtual bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;
 	virtual bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) = 0;
@@ -831,15 +830,6 @@ public:
 	real_t get_collision_depth() const;
 	real_t get_collision_safe_fraction() const;
 	real_t get_collision_unsafe_fraction() const;
-};
-
-class Transform2DiRef : public RefCounted {
-GDCLASS(Transform2DiRef, RefCounted);
-
-	Transform2Di transform2Di;
-
-public:
-	Transform2Di *get_transform2Di_ptr() const { return const_cast<Transform2Di *>(&transform2Di); }
 };
 
 class PhysicsCollisionResult2D : public RefCounted {

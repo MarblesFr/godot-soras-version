@@ -1088,7 +1088,7 @@ bool GodotPhysicsServer2D::body_test_motion(RID p_body, const MotionParameters &
 	return body->get_space()->test_body_motion(body, p_parameters, r_result);
 }
 
-bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, CollisionResult *r_result, const int16_t p_collision_type_filter) {
+bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Vector2i &p_delta, CollisionResult *r_result, const int16_t p_collision_type_filter) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1096,10 +1096,10 @@ bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Transform2Di &p_fr
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at(body, p_from, p_delta, r_result, p_collision_type_filter);
+	return body->get_space()->body_collides_at(body, p_delta, r_result, p_collision_type_filter);
 }
 
-bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) {
+bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1112,10 +1112,10 @@ bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Transform2Di 
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at_with(body, p_from, p_delta, other);
+	return body->get_space()->body_collides_at_with(body, p_delta, other);
 }
 
-bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1123,10 +1123,10 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Transform2Di &
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at_all(body, p_from, p_delta, r_bodies, p_collision_type_filter);
+	return body->get_space()->body_collides_at_all(body, p_delta, r_bodies, p_smear, p_collision_type_filter);
 }
 
-bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, Transform2Di *p_other_from) {
+bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) {
 	GodotArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL_V(area, false);
 	ERR_FAIL_NULL_V(area->get_space(), false);
@@ -1139,10 +1139,10 @@ bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Transform2Di 
 
 	_update_shapes();
 
-	return area->get_space()->area_collides_at_with(area, p_from, p_delta, other, p_other_from);
+	return area->get_space()->area_collides_at_with(area, p_delta, other);
 }
 
-int GodotPhysicsServer2D::body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) {
+int GodotPhysicsServer2D::body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1155,10 +1155,10 @@ int GodotPhysicsServer2D::body_push_amount_h(RID p_body, const Transform2Di &p_f
 
 	_update_shapes();
 
-	return body->get_space()->body_push_amount_h(body, p_from, p_direction, other);
+	return body->get_space()->body_push_amount_h(body, p_move_amount, other);
 }
 
-int GodotPhysicsServer2D::body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) {
+int GodotPhysicsServer2D::body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1171,7 +1171,7 @@ int GodotPhysicsServer2D::body_push_amount_v(RID p_body, const Transform2Di &p_f
 
 	_update_shapes();
 
-	return body->get_space()->body_push_amount_v(body, p_from, p_direction, other);
+	return body->get_space()->body_push_amount_v(body, p_move_amount, other);
 }
 
 PhysicsDirectBodyState2D *GodotPhysicsServer2D::body_get_direct_state(RID p_body) {

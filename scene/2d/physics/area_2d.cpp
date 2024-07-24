@@ -541,19 +541,11 @@ StringName Area2D::get_audio_bus_name() const {
 }
 
 bool Area2D::collides_at_with(const Vector2i &p_delta, const RID &p_body) {
-	return PhysicsServer2D::get_singleton()->area_collides_at_with(get_rid(), get_global_transform_i(), p_delta, p_body);
+	return PhysicsServer2D::get_singleton()->area_collides_at_with(get_rid(), p_delta, p_body);
 }
 
 bool Area2D::collides_with(const RID &p_body) {
 	return collides_at_with(Vector2i(), p_body);
-}
-
-bool Area2D::collides_at_with_use_from(const Vector2i &p_delta, const RID &p_body, const Transform2Di &p_other_from) {
-	return PhysicsServer2D::get_singleton()->area_collides_at_with(get_rid(), get_global_transform_i(), p_delta, p_body, const_cast<Transform2Di *>(&p_other_from));
-}
-
-bool Area2D::collides_with_use_from(const RID &p_body, const Transform2Di &p_other_from) {
-	return collides_at_with_use_from(Vector2i(), p_body, p_other_from);
 }
 
 void Area2D::_validate_property(PropertyInfo &p_property) const {
@@ -650,9 +642,6 @@ void Area2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("collides_at_with", "delta", "body"), &Area2D::collides_at_with);
 	ClassDB::bind_method(D_METHOD("collides_with", "body"), &Area2D::collides_with);
-
-	ClassDB::bind_method(D_METHOD("collides_at_with_use_from", "delta", "body", "other_from"), &Area2D::collides_at_with_use_from);
-	ClassDB::bind_method(D_METHOD("collides_with_use_from", "body", "other_from"), &Area2D::collides_with_use_from);
 
 	ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(Variant::RID, "body_rid"), PropertyInfo(Variant::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node2D"), PropertyInfo(Variant::INT, "body_shape_index"), PropertyInfo(Variant::INT, "local_shape_index")));
 	ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(Variant::RID, "body_rid"), PropertyInfo(Variant::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node2D"), PropertyInfo(Variant::INT, "body_shape_index"), PropertyInfo(Variant::INT, "local_shape_index")));

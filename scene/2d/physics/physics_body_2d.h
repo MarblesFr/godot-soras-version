@@ -72,9 +72,9 @@ public:
 
 	bool collides_at_with_outside(const Vector2i &p_delta, const RID &p_body);
 
-	bool collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+	bool collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
-	TypedArray<RID> _collides_at_all(const Vector2i &p_delta, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
+	TypedArray<RID> _collides_at_all(const Vector2i &p_delta, const bool p_smear = false, const int16_t p_collision_type_filter = PhysicsServer2D::DEFAULT_COLLIDER_FILTER);
 
 	virtual bool on_ground();
 

@@ -1014,7 +1014,7 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 	return collided;
 }
 
-bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
+bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
 	if (r_result) {
 		r_result->collider_id = ObjectID();
 		r_result->collider_shape = 0;
@@ -1045,9 +1045,6 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di &p_f
 		return false;
 	}
 
-	// Undo the current transform the physics server is aware of and apply the provided one
-	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
-
 	static const int max_excluded_shape_pairs = 32;
 	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
 	int excluded_shape_pair_count = 0;
@@ -1068,7 +1065,6 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di &p_f
 			}
 
 			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
 			shape_moved_aabb.position += p_delta;
 
 			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
@@ -1122,7 +1118,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Transform2Di &p_f
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other) {
+bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_delta, const GodotBody2D *p_other, const bool p_smear) {
 	if (!p_body->is_collidable() || !p_other->is_collidable()) {
 		return false;
 	}
@@ -1169,12 +1165,12 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di
 		return false;
 	}
 
-	// Undo the current transform the physics server is aware of and apply the provided one
-	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
-
 	{
 		Rect2i moved_aabb = body_aabb;
 		moved_aabb.position += p_delta;
+		if (p_smear) {
+			moved_aabb = moved_aabb.merge(body_aabb);
+		}
 
 		if (!moved_aabb.intersects(other_aabb)) {
 			return false;
@@ -1185,9 +1181,12 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di
 				continue;
 			}
 
-			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
+			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
+			Rect2i shape_moved_aabb = shape_aabb;
 			shape_moved_aabb.position += p_delta;
+			if (p_smear) {
+				shape_moved_aabb = shape_moved_aabb.merge(shape_aabb);
+			}
 
 			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
 
@@ -1204,7 +1203,7 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Transform2Di
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter) {
 	if (!p_body->is_collidable()) {
 		return false;
 	}
@@ -1232,9 +1231,6 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 		return false;
 	}
 
-	// Undo the current transform the physics server is aware of and apply the provided one
-	body_aabb = p_from.xform(p_body->get_inv_transform().xform(body_aabb));
-
 	static const int max_excluded_shape_pairs = 32;
 	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
 	int excluded_shape_pair_count = 0;
@@ -1242,6 +1238,9 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 	{
 		Rect2i moved_aabb = body_aabb;
 		moved_aabb.position += p_delta;
+		if (p_smear) {
+			moved_aabb = moved_aabb.merge(body_aabb);
+		}
 
 		int amount = _cull_aabb_for_body(p_body, moved_aabb);
 
@@ -1254,9 +1253,12 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 				continue;
 			}
 
-			Rect2i shape_moved_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_moved_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_moved_aabb));
+			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
+			Rect2i shape_moved_aabb = shape_aabb;
 			shape_moved_aabb.position += p_delta;
+			if (p_smear) {
+				shape_moved_aabb = shape_moved_aabb.merge(shape_aabb);
+			}
 
 			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
 
@@ -1303,7 +1305,7 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Transform2Di 
 	return !r_bodies.is_empty();
 }
 
-bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Transform2Di &p_from, const Vector2i &p_delta, const GodotBody2D *p_other, Transform2Di *p_other_from) {
+bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_delta, const GodotBody2D *p_other) {
 	if (!p_other->is_collidable()) {
 		return false;
 	}
@@ -1350,13 +1352,6 @@ bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Transform2Di
 		return false;
 	}
 
-	// Undo the current transform the physics server is aware of and apply the provided one
-	area_aabb = p_from.xform(p_area->get_inv_transform().xform(area_aabb));
-
-	if (p_other_from != nullptr) {
-		other_aabb = p_other_from->xform(p_other->get_inv_transform().xform(other_aabb));
-	}
-
 	{
 		Rect2i moved_aabb = area_aabb;
 		moved_aabb.position += p_delta;
@@ -1371,16 +1366,12 @@ bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Transform2Di
 			}
 
 			Rect2i shape_moved_aabb = p_area->get_shape_aabb(area_shape_idx);
-			shape_moved_aabb = p_from.xform(p_area->get_inv_transform().xform(shape_moved_aabb));
 			shape_moved_aabb.position += p_delta;
 
 			GodotShape2D *area_shape = p_area->get_shape(area_shape_idx);
 
 			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
 				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
-				if (p_other_from != nullptr) {
-					other_shape_aabb = p_other_from->xform(p_other->get_inv_transform().xform(other_shape_aabb));
-				}
 
 				if (shape_moved_aabb.intersects(other_shape_aabb)) {
 					return true;
@@ -1392,8 +1383,8 @@ bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Transform2Di
 	return false;
 }
 
-int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other) {
-	if (p_direction == 0 || !body_collides_at_with(p_body, p_from, Vector2i(), p_other)) {
+int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const int p_move_amount, const GodotBody2D *p_other) {
+	if (p_move_amount == 0 || !body_collides_at_with(p_body, Vector2i(p_move_amount, 0), p_other, true)) {
 		return 0;
 	}
 
@@ -1407,21 +1398,21 @@ int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_
 			}
 
 			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_aabb));
-
-			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+			Rect2i shape_moved_aabb = shape_aabb;
+			shape_moved_aabb.position += Vector2i(p_move_amount, 0);
+			shape_moved_aabb = shape_moved_aabb.merge(shape_aabb);
 
 			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
 				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
 
-				if (shape_aabb.intersects(other_shape_aabb)) {
-					if (p_direction > 0) {
-						current_move = shape_aabb.get_right() - other_shape_aabb.get_left();
+				if (shape_moved_aabb.intersects(other_shape_aabb)) {
+					if (p_move_amount > 0) {
+						current_move = shape_moved_aabb.get_right() - other_shape_aabb.get_left();
 						if (current_move > min_move) {
 							min_move = current_move;
 						}
 					} else {
-						current_move = shape_aabb.get_left() - other_shape_aabb.get_right();
+						current_move = shape_moved_aabb.get_left() - other_shape_aabb.get_right();
 						if (current_move < min_move) {
 							min_move = current_move;
 						}
@@ -1434,8 +1425,8 @@ int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const Transform2Di &p_
 	return min_move;
 }
 
-int GodotSpace2D::body_push_amount_v(GodotBody2D *p_body, const Transform2Di &p_from, const int p_direction, const GodotBody2D *p_other) {
-	if (p_direction == 0 || !body_collides_at_with(p_body, p_from, Vector2i(), p_other)) {
+int GodotSpace2D::body_push_amount_v(GodotBody2D *p_body, const int p_move_amount, const GodotBody2D *p_other) {
+	if (p_move_amount == 0 || !body_collides_at_with(p_body, Vector2i(0, p_move_amount), p_other, true)) {
 		return 0;
 	}
 
@@ -1449,21 +1440,21 @@ int GodotSpace2D::body_push_amount_v(GodotBody2D *p_body, const Transform2Di &p_
 			}
 
 			Rect2i shape_aabb = p_body->get_shape_aabb(body_shape_idx);
-			shape_aabb = p_from.xform(p_body->get_inv_transform().xform(shape_aabb));
-
-			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
+			Rect2i shape_moved_aabb = shape_aabb;
+			shape_moved_aabb.position += Vector2i(0, p_move_amount);
+			shape_moved_aabb = shape_moved_aabb.merge(shape_aabb);
 
 			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
 				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
 
-				if (shape_aabb.intersects(other_shape_aabb)) {
-					if (p_direction > 0) {
-						current_move = shape_aabb.get_bottom() - other_shape_aabb.get_top();
+				if (shape_moved_aabb.intersects(other_shape_aabb)) {
+					if (p_move_amount > 0) {
+						current_move = shape_moved_aabb.get_bottom() - other_shape_aabb.get_top();
 						if (current_move > min_move) {
 							min_move = current_move;
 						}
 					} else {
-						current_move = shape_aabb.get_top() - other_shape_aabb.get_bottom();
+						current_move = shape_moved_aabb.get_top() - other_shape_aabb.get_bottom();
 						if (current_move < min_move) {
 							min_move = current_move;
 						}

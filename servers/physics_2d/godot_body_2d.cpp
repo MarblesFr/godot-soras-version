@@ -312,9 +312,9 @@ void GodotBody2D::set_state(PhysicsServer2D::BodyState p_state, const Variant &p
 				new_transform = p_variant;
 				//wakeup_neighbours();
 				set_active(true);
+				_set_transform(p_variant);
+				_set_inv_transform(get_transform().affine_inverse());
 				if (first_time_kinematic) {
-					_set_transform(p_variant);
-					_set_inv_transform(get_transform().affine_inverse());
 					first_time_kinematic = false;
 				}
 			} else if (mode == PhysicsServer2D::BODY_MODE_STATIC) {
@@ -630,8 +630,8 @@ void GodotBody2D::integrate_velocities(real_t p_step) {
 	}
 
 	if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
-		_set_transform(new_transform, false);
-		_set_inv_transform(new_transform.affine_inverse());
+//		_set_transform(new_transform, false);
+//		_set_inv_transform(new_transform.affine_inverse());
 		if (contacts.size() == 0 && linear_velocity == Vector2() && angular_velocity == 0) {
 			set_active(false); //stopped moving, deactivate
 		}

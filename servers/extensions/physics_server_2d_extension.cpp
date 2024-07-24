@@ -311,14 +311,14 @@ void PhysicsServer2DExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_body_get_squish_callable, "body");
 
 	GDVIRTUAL_BIND(_body_test_motion, "body", "from", "motion", "collide_separation_ray", "recovery_as_collision", "result");
-	GDVIRTUAL_BIND(_body_collides_at, "body", "from", "delta", "result", "collision_type_filter");
-	GDVIRTUAL_BIND(_body_collides_at_with, "body", "from", "delta", "other");
-	GDVIRTUAL_BIND(_body_collides_at_all, "body", "from", "delta", "collision_type_filter");
+	GDVIRTUAL_BIND(_body_collides_at, "body", "delta", "result", "collision_type_filter");
+	GDVIRTUAL_BIND(_body_collides_at_with, "body", "delta", "other");
+	GDVIRTUAL_BIND(_body_collides_at_all, "body", "delta", "smear", "collision_type_filter");
 
-	GDVIRTUAL_BIND(_area_collides_at_with, "area", "from", "delta", "other", "other_from");
+	GDVIRTUAL_BIND(_area_collides_at_with, "area", "delta", "other");
 
-	GDVIRTUAL_BIND(_body_push_amount_h, "body", "from", "direction", "other");
-	GDVIRTUAL_BIND(_body_push_amount_v, "body", "from", "direction", "other");
+	GDVIRTUAL_BIND(_body_push_amount_h, "body", "move_amount", "other");
+	GDVIRTUAL_BIND(_body_push_amount_v, "body", "move_amount", "other");
 
 	/* JOINT API */
 

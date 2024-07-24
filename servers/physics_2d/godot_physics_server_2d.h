@@ -272,14 +272,14 @@ public:
 	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) override;
 
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override;
-	virtual bool body_collides_at(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
-	virtual bool body_collides_at_with(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other) override;
-	virtual bool body_collides_at_all(RID p_body, const Transform2Di &p_from, const Vector2i &p_delta, List<RID> &r_bodies, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
+	virtual bool body_collides_at(RID p_body, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
+	virtual bool body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other) override;
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
 
-	virtual bool area_collides_at_with(RID p_area, const Transform2Di &p_from, const Vector2i &p_delta, const RID &p_other, Transform2Di *p_other_from = nullptr) override;
+	virtual bool area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) override;
 
-	virtual int body_push_amount_h(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
-	virtual int body_push_amount_v(RID p_body, const Transform2Di &p_from, const int p_direction, const RID &p_other) override;
+	virtual int body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other) override;
+	virtual int body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other) override;
 
 	// this function only works on physics process, errors and returns null otherwise
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override;
