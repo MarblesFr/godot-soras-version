@@ -831,21 +831,21 @@ void main() {
 			);
 		}
 
-#ifdef POST_LIGHT_CODE_USED
-
-		vec4 light = light_color;
-
-#CODE : POST_LIGHT
-
-		light_color = light;
-
-#endif
-
 		light_blend_compute(light_base, light_color, light_mix.rgb);
 #ifdef MODE_LIGHT_ONLY
 		light_only_alpha += light_color.a;
 #endif
 	}
+
+#ifdef POST_LIGHT_CODE_USED
+
+	vec4 light = light_mix;
+
+#CODE : POST_LIGHT
+
+	light_mix = light;
+
+#endif
 
 	color.rgb += light_mix.rgb * light_mix.a;
 //	color.rgb = min(color.rgb + (light_mix.rgb * light_mix.a), base_color.rgb);
