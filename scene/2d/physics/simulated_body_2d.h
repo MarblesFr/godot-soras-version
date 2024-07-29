@@ -37,7 +37,23 @@
 class SimulatedBody2D : public PhysicsBody2D {
 	GDCLASS(SimulatedBody2D, PhysicsBody2D);
 
+	bool ignores_one_way = false;
+
+protected:
+	static void _bind_methods();
+
 public:
+	bool on_ground() override;
+
+	void set_ignores_one_way(bool p_enable);
+	bool is_ignores_one_way_enabled() const;
+
+	bool _is_riding_solid(const RID &p_solid);
+	bool _is_riding_one_way(const RID &p_one_way);
+
+	GDVIRTUAL1R(bool, _is_riding_solid, RID)
+	GDVIRTUAL1R(bool, _is_riding_one_way, RID)
+
 	SimulatedBody2D();
 };
 

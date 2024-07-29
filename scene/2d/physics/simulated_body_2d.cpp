@@ -30,6 +30,51 @@
 
 #include "simulated_body_2d.h"
 
+void SimulatedBody2D::_bind_methods() {
+	GDVIRTUAL_BIND(_is_riding_solid, "solid");
+	GDVIRTUAL_BIND(_is_riding_one_way, "one_way");
+
+	ClassDB::bind_method(D_METHOD("set_ignores_one_way", "enabled"), &SimulatedBody2D::set_ignores_one_way);
+	ClassDB::bind_method(D_METHOD("is_ignores_one_way_enabled"), &SimulatedBody2D::is_ignores_one_way_enabled);
+
+	ClassDB::bind_method(D_METHOD("is_riding_solid", "solid"), &SimulatedBody2D::_is_riding_solid);
+	ClassDB::bind_method(D_METHOD("is_riding_one_way", "one_way"), &SimulatedBody2D::_is_riding_one_way);
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ignores_one_way"), "set_ignores_one_way", "is_ignores_one_way_enabled");
+}
+
 SimulatedBody2D::SimulatedBody2D() :
 		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_SIMULATED) {
+	PhysicsServer2D::get_singleton()->body_set_is_riding_solid(get_rid(), callable_mp(this, &SimulatedBody2D::_is_riding_solid));
+	PhysicsServer2D::get_singleton()->body_set_is_riding_one_way(get_rid(), callable_mp(this, &SimulatedBody2D::_is_riding_one_way));
+}
+
+bool SimulatedBody2D::on_ground() {
+	return collides_at(Vector2i(0, 1)) || (!ignores_one_way && collides_at_outside(Vector2i(0, 1), nullptr, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY));
+}
+
+void SimulatedBody2D::set_ignores_one_way(bool p_enable) {
+	ignores_one_way = p_enable;
+}
+
+bool SimulatedBody2D::is_ignores_one_way_enabled() const {
+	return ignores_one_way;
+}
+
+bool SimulatedBody2D::_is_riding_solid(const RID &p_solid) {
+	bool result = false;
+	if(GDVIRTUAL_CALL(_is_riding_solid, p_solid, result)) {
+		return result;
+	}
+	result = collides_at_with(Vector2i(0, 1), p_solid);
+	return result;
+}
+
+bool SimulatedBody2D::_is_riding_one_way(const RID &p_one_way) {
+	bool result = false;
+	if(GDVIRTUAL_CALL(_is_riding_one_way, p_one_way, result)) {
+		return result;
+	}
+	result = !ignores_one_way && collides_at_with_outside(Vector2i(0, 1), p_one_way);
+	return result;
 }
