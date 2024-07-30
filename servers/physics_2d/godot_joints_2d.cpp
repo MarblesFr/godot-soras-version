@@ -314,7 +314,7 @@ bool GodotPinJoint2D::get_flag(PhysicsServer2D::PinJointFlag p_flag) const {
 	ERR_FAIL_V(0);
 }
 
-GodotPinJoint2D::GodotPinJoint2D(const Vector2 &p_pos, GodotBody2D *p_body_a, GodotBody2D *p_body_b) :
+GodotPinJoint2D::GodotPinJoint2D(const Vector2i &p_pos, GodotBody2D *p_body_a, GodotBody2D *p_body_b) :
 		GodotJoint2D(_arr, p_body_b ? 2 : 1) {
 	A = p_body_a;
 	B = p_body_b;

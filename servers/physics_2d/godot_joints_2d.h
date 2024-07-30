@@ -84,9 +84,9 @@ class GodotPinJoint2D : public GodotJoint2D {
 	};
 
 	Transform2D M;
-	Vector2 rA, rB;
-	Vector2 anchor_A;
-	Vector2 anchor_B;
+	Vector2i rA, rB;
+	Vector2i anchor_A;
+	Vector2i anchor_B;
 	Vector2 bias;
 	real_t initial_angle = 0.0;
 	real_t bias_velocity = 0.0;
@@ -115,7 +115,7 @@ public:
 	void set_flag(PhysicsServer2D::PinJointFlag p_flag, bool p_enabled);
 	bool get_flag(PhysicsServer2D::PinJointFlag p_flag) const;
 
-	GodotPinJoint2D(const Vector2 &p_pos, GodotBody2D *p_body_a, GodotBody2D *p_body_b = nullptr);
+	GodotPinJoint2D(const Vector2i &p_pos, GodotBody2D *p_body_a, GodotBody2D *p_body_b = nullptr);
 };
 
 class GodotGrooveJoint2D : public GodotJoint2D {
