@@ -90,7 +90,7 @@ struct [[nodiscard]] Face3 {
 bool Face3::intersects_aabb2(const AABB &p_aabb) const {
 	Vector3 perp = (vertex[0] - vertex[2]).cross(vertex[0] - vertex[1]);
 
-	Vector3 half_extents = p_aabb.size * 0.5f;
+	Vector3 half_extents = Vector3(p_aabb.size) * 0.5f;
 	Vector3 ofs = p_aabb.position + half_extents;
 
 	Vector3 sup = Vector3(
