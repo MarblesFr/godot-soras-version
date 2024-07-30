@@ -634,6 +634,27 @@ Error ResourceLoaderBinary::parse_variant(Variant &r_v) {
 			r_v = array;
 
 		} break;
+		case VARIANT_PACKED_VECTOR2I_ARRAY: {
+			uint32_t len = f->get_32();
+
+			Vector<Vector2i> array;
+			array.resize(len);
+			Vector2i *w = array.ptrw();
+			static_assert(sizeof(Vector2i) == 2 * sizeof(int32_t));
+			int32_t * dst = reinterpret_cast<int32_t *>(w);
+			f->get_buffer((uint8_t *)dst, len * 2 * sizeof(int32_t));
+#ifdef BIG_ENDIAN_ENABLED
+			{
+				uint32_t *dst = (uint32_t *)dst;
+				for (size_t i = 0; i < count; i++) {
+					dst[i] = BSWAP32(dst[i]);
+				}
+			}
+#endif
+
+			r_v = array;
+
+		} break;
 		case VARIANT_PACKED_VECTOR3_ARRAY: {
 			uint32_t len = f->get_32();
 
