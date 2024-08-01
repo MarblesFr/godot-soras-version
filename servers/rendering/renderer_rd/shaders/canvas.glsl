@@ -772,21 +772,22 @@ void main() {
 
 			vec2 shadow_pos = (vec4(shadow_vertex, 0.0, 1.0) * mat4(light_array.data[light_base].shadow_matrix[0], light_array.data[light_base].shadow_matrix[1], vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0))).xy; //multiply inverse given its transposed. Optimizer removes useless operations.
 
-			shadow_pos = shadow_pos + light_sample_offset;
+			vec2 shadow_pos_o = shadow_pos + light_sample_offset;
 
 //			vec3 occluder_uv = vec3(tex_uv * vec2(light_array.data[light_base].occluder_scale_x, light_array.data[light_base].occluder_scale_y), float(light_array.data[light_base].occluder_texture_index));
 
 			uint interpolation_steps = 0;
-			vec2 interpolated_pos = shadow_pos;
+			vec2 interpolated_pos = shadow_pos_o;
 
 			vec3 occluder_uv = vec3((shadow_pos + (light_size / 2.0)) / occluder_max_size, float(light_array.data[light_base].occluder_texture_index));
-			float occluder = texture(sampler2DArray(occluder_texture, texture_sampler), occluder_uv).r;
+			vec3 occluder_uv_o = vec3((shadow_pos_o + (light_size / 2.0)) / occluder_max_size, float(light_array.data[light_base].occluder_texture_index));
+			float occluder = max(texture(sampler2DArray(occluder_texture, texture_sampler), occluder_uv_o).r, texture(sampler2DArray(occluder_texture, texture_sampler), occluder_uv).r);
 
 			while (occluder < 0.5 && interpolation_steps < light_max_steps) {
 				interpolation_steps += 1;
-				interpolated_pos = point_on_line(shadow_pos, light_step_size, light_pixel_size, light_enable_rounding, interpolation_steps);
-				occluder_uv = vec3((interpolated_pos + (light_size / 2.0)) / occluder_max_size, float(light_array.data[light_base].occluder_texture_index));
-				occluder = texture(sampler2DArray(occluder_texture, texture_sampler), occluder_uv).r;
+				interpolated_pos = point_on_line(shadow_pos_o, light_step_size, light_pixel_size, light_enable_rounding, interpolation_steps);
+				occluder_uv_o = vec3((interpolated_pos + (light_size / 2.0)) / occluder_max_size, float(light_array.data[light_base].occluder_texture_index));
+				occluder = texture(sampler2DArray(occluder_texture, texture_sampler), occluder_uv_o).r;
 			}
 
 //			vec2 tex_uv_atlas = tex_uv * light_array.data[light_base].atlas_rect.zw + light_array.data[light_base].atlas_rect.xy;
