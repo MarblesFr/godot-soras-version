@@ -90,6 +90,7 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 	Vector2i move_dir_vector = Vector2i(0, move_dir);
 	int amount_moved = 0;
 	PhysicsServer2D::CollisionResult r_result;
+	List<RID> bodies;
 	while (p_amount != 0)
 	{
 		bool colliding = collides_at(move_dir_vector, &r_result);
@@ -103,13 +104,13 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 			return true;
 		}
 		if (p_amount > 0 && !ignores_one_way) {
-			colliding = collides_at_outside(move_dir_vector, &r_result, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
+			colliding = collides_at_all_outside(move_dir_vector, bodies, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
 			if (colliding)
 			{
 				position_delta.y = 0;
 				if (p_callback.is_valid())
 				{
-					p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
+					p_callback.call(move_dir_vector, amount_moved, p_amount, bodies.get(0), p_pusher);
 				}
 				return true;
 			}
@@ -122,7 +123,8 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 }
 
 bool CharacterBody2D::on_ground() {
-	return collides_at(Vector2i(0, 1)) || (!ignores_one_way && collides_at_outside(Vector2i(0, 1), nullptr, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY));
+	List<RID> bodies;
+	return collides_at(Vector2i(0, 1)) || (!ignores_one_way && collides_at_all_outside(Vector2i(0, 1), bodies, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY));
 }
 
 void CharacterBody2D::set_ignores_one_way(bool p_enable) {

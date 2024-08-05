@@ -50,7 +50,8 @@ SimulatedBody2D::SimulatedBody2D() :
 }
 
 bool SimulatedBody2D::on_ground() {
-	return collides_at(Vector2i(0, 1)) || (!ignores_one_way && collides_at_outside(Vector2i(0, 1), nullptr, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY));
+	List<RID> bodies;
+	return collides_at(Vector2i(0, 1)) || (!ignores_one_way && collides_at_all_outside(Vector2i(0, 1), bodies, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY));
 }
 
 void SimulatedBody2D::set_ignores_one_way(bool p_enable) {

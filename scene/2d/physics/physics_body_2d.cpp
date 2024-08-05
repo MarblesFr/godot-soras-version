@@ -47,7 +47,7 @@ void PhysicsBody2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("on_ground"), &PhysicsBody2D::on_ground);
 	ClassDB::bind_method(D_METHOD("collides_at", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
-	ClassDB::bind_method(D_METHOD("collides_at_outside", "delta", "result", "collision_type_filter"), &PhysicsBody2D::_collides_at_outside, DEFVAL(Variant()), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("collides_at_all_outside", "delta", "collision_type_filter"), &PhysicsBody2D::_collides_at_all_outside, DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("collides_at_with", "delta", "body"), &PhysicsBody2D::collides_at_with);
 	ClassDB::bind_method(D_METHOD("collides_at_with_outside", "delta", "body"), &PhysicsBody2D::collides_at_with_outside);
 	ClassDB::bind_method(D_METHOD("collides_at_all", "delta", "smear", "collision_type_filter"), &PhysicsBody2D::_collides_at_all, DEFVAL(false), DEFVAL(PhysicsServer2D::DEFAULT_COLLIDER_FILTER));
@@ -133,17 +133,25 @@ bool PhysicsBody2D::_collides_at(const Vector2i &p_delta, const Ref<PhysicsColli
 	return collides_at(p_delta, result_ptr, p_collision_type_filter);
 }
 
-bool PhysicsBody2D::collides_at_outside(const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter) {
-	return !collides_at(Vector2i(0, 0), nullptr, p_collision_type_filter) && collides_at(p_delta, r_result, p_collision_type_filter);
+bool PhysicsBody2D::collides_at_all_outside(const Vector2i &p_delta, List<RID> &r_bodies, const int16_t p_collision_type_filter) {
+	collides_at_all(p_delta, r_bodies, false, p_collision_type_filter);
+	for (int i = r_bodies.size() - 1; i >= 0; --i) {
+		RID current = r_bodies.get(i);
+		if (collides_at_with(Vector2i(0,0), current)) {
+			r_bodies.erase(current);
+		}
+	}
+	return r_bodies.size() > 0;
 }
 
-bool PhysicsBody2D::_collides_at_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result, const int16_t p_collision_type_filter) {
-	PhysicsServer2D::CollisionResult *result_ptr = nullptr;
-	if (r_result.is_valid()) {
-		result_ptr = r_result->get_result_ptr();
+TypedArray<RID> PhysicsBody2D::_collides_at_all_outside(const Vector2i &p_delta, const int16_t p_collision_type_filter) {
+	List<RID> bodies;
+	TypedArray<RID> r_bodies;
+	collides_at_all_outside(p_delta, bodies, p_collision_type_filter);
+	for (const auto &item : bodies) {
+		r_bodies.push_back(item);
 	}
-
-	return collides_at_outside(p_delta, result_ptr, p_collision_type_filter);
+	return r_bodies;
 }
 
 bool PhysicsBody2D::collides_at_with(const Vector2i &p_delta, const RID &p_body) {
@@ -169,7 +177,8 @@ TypedArray<RID> PhysicsBody2D::_collides_at_all(const Vector2i &p_delta, const b
 }
 
 bool PhysicsBody2D::on_ground() {
-	return collides_at(Vector2i(0, 1)) || collides_at_outside(Vector2i(0, 1), nullptr, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
+	List<RID> bodies;
+	return collides_at(Vector2i(0, 1)) || collides_at_all_outside(Vector2i(0, 1), bodies, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
 }
 
 TypedArray<PhysicsBody2D> PhysicsBody2D::get_collision_exceptions() {
