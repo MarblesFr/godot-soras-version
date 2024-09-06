@@ -2331,9 +2331,6 @@ void EditorPropertyTransform2DI::_notification(int p_what) {
 	}
 }
 
-void EditorPropertyTransform2DI::_bind_methods() {
-}
-
 void EditorPropertyTransform2DI::setup(int p_min, int p_max, const String &p_suffix) {
 	for (int i = 0; i < 4; i++) {
 		spin[i]->set_min(p_min);
