@@ -44,7 +44,17 @@ SwFixed mathMean(SwFixed angle1, SwFixed angle2)
 }
 
 
-bool mathSmallCubic(const SwPoint* base, SwFixed& angleIn, SwFixed& angleMid, SwFixed& angleOut)
+bool mathSmallCubic(const SwPoint* base)
+{
+    auto d1 = base[2] - base[3];
+    auto d2 = base[1] - base[2];
+    auto d3 = base[0] - base[1];
+
+    return d1.small() && d2.small() && d3.small();
+}
+
+
+bool mathFlatCubic(const SwPoint* base, SwFixed& angleIn, SwFixed& angleMid, SwFixed& angleOut)
 {
     auto d1 = base[2] - base[3];
     auto d2 = base[1] - base[2];
@@ -52,12 +62,7 @@ bool mathSmallCubic(const SwPoint* base, SwFixed& angleIn, SwFixed& angleMid, Sw
 
     if (d1.small()) {
         if (d2.small()) {
-            if (d3.small()) {
-                angleIn = angleMid = angleOut = 0;
-                return true;
-            } else {
-                angleIn = angleMid = angleOut = mathAtan(d3);
-            }
+            angleIn = angleMid = angleOut = mathAtan(d3);
         } else {
             if (d3.small()) {
                 angleIn = angleMid = angleOut = mathAtan(d2);
@@ -254,12 +259,10 @@ SwFixed mathDiff(SwFixed angle1, SwFixed angle2)
 }
 
 
-SwPoint mathTransform(const Point* to, const Matrix* transform)
+SwPoint mathTransform(const Point* to, const Matrix& transform)
 {
-    if (!transform) return {TO_SWCOORD(to->x), TO_SWCOORD(to->y)};
-
-    auto tx = to->x * transform->e11 + to->y * transform->e12 + transform->e13;
-    auto ty = to->x * transform->e21 + to->y * transform->e22 + transform->e23;
+    auto tx = to->x * transform.e11 + to->y * transform.e12 + transform.e13;
+    auto ty = to->x * transform.e21 + to->y * transform.e22 + transform.e23;
 
     return {TO_SWCOORD(tx), TO_SWCOORD(ty)};
 }

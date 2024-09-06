@@ -441,11 +441,17 @@ static void _cubicTo(SwStroke& stroke, const SwPoint& ctrl1, const SwPoint& ctrl
         //initialize with current direction
         angleIn = angleOut = angleMid = stroke.angleIn;
 
-        if (arc < limit && !mathSmallCubic(arc, angleIn, angleMid, angleOut)) {
-            if (stroke.firstPt) stroke.angleIn = angleIn;
-            mathSplitCubic(arc);
-            arc += 3;
-            continue;
+        if (arc < limit) {
+            if (mathSmallCubic(arc)) {
+                arc -= 3;
+                continue;
+            }
+            if (!mathFlatCubic(arc, angleIn, angleMid, angleOut)) {
+                if (stroke.firstPt) stroke.angleIn = angleIn;
+                mathSplitCubic(arc);
+                arc += 3;
+                continue;
+            }
         }
 
         if (firstArc) {
@@ -805,15 +811,10 @@ void strokeFree(SwStroke* stroke)
 }
 
 
-void strokeReset(SwStroke* stroke, const RenderShape* rshape, const Matrix* transform)
+void strokeReset(SwStroke* stroke, const RenderShape* rshape, const Matrix& transform)
 {
-    if (transform) {
-        stroke->sx = sqrtf(powf(transform->e11, 2.0f) + powf(transform->e21, 2.0f));
-        stroke->sy = sqrtf(powf(transform->e12, 2.0f) + powf(transform->e22, 2.0f));
-    } else {
-        stroke->sx = stroke->sy = 1.0f;
-    }
-
+    stroke->sx = sqrtf(powf(transform.e11, 2.0f) + powf(transform.e21, 2.0f));
+    stroke->sy = sqrtf(powf(transform.e12, 2.0f) + powf(transform.e22, 2.0f));
     stroke->width = HALF_STROKE(rshape->strokeWidth());
     stroke->cap = rshape->strokeCap();
     stroke->miterlimit = static_cast<SwFixed>(rshape->strokeMiterlimit() * 65536.0f);

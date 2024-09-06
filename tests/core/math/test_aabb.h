@@ -377,23 +377,23 @@ TEST_CASE("[AABB] Get longest/shortest axis") {
 TEST_CASE("[AABB] Get support") {
 	const AABB aabb = AABB(Vector3i(-1, 2, -2), Vector3i(4, 5, 6));
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i(1, 0, 0)).is_equal(Vector3i(2, 2, -2)),
+			aabb.get_support(Vector3i(1, 0, 0)) == Vector3i(2, 2, -2),
 			"get_support() should return the expected value.");
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i(0, 1, 0)).is_equal(Vector3i(2, 7, -2)),
+			aabb.get_support(Vector3i(0, 1, 1)) == Vector3i(2, 7, 3),
 			"get_support() should return the expected value.");
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i(0, 1, -400)).is_equal(Vector3i(2, 7, -2)),
+			aabb.get_support(Vector3i(0, 1, -400)) == Vector3i(2, 7, -2),
 			"get_support() should return the expected value.");
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i(0, -1, 0)).is_equal(Vector3i(-1, 2, -2)),
+			aabb.get_support(Vector3i(0, -1, 0)) == Vector3i(-1, 2, -2),
 			"get_support() should return the expected value.");
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i(0, -0.1, 0)).is_equal(Vector3i(-1, 2, -2)),
+			aabb.get_support(Vector3i(0, -0, 0)) == Vector3i(-1, 2, -2),
 			"get_support() should return the expected value.");
 	CHECK_MESSAGE(
-			aabb.get_support(Vector3i()).is_equal(Vector3i(-1, 2, -2)),
-			"get_support() should return the expected value with a null vector.");
+			aabb.get_support(Vector3i()) == Vector3i(-1, 2, -2),
+			"get_support() should return the AABB position when given a zero vector.");
 }
 
 TEST_CASE("[AABB] Grow") {

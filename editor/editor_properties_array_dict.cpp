@@ -644,6 +644,8 @@ void EditorPropertyArray::_notification(int p_what) {
 		case NOTIFICATION_THEME_CHANGED:
 		case NOTIFICATION_ENTER_TREE: {
 			change_type->clear();
+			change_type->add_icon_item(get_editor_theme_icon(SNAME("Remove")), TTR("Remove Item"), Variant::VARIANT_MAX);
+			change_type->add_separator();
 			for (int i = 0; i < Variant::VARIANT_MAX; i++) {
 				if (i == Variant::CALLABLE || i == Variant::SIGNAL || i == Variant::RID) {
 					// These types can't be constructed or serialized properly, so skip them.
@@ -653,8 +655,6 @@ void EditorPropertyArray::_notification(int p_what) {
 				String type = Variant::get_type_name(Variant::Type(i));
 				change_type->add_icon_item(get_editor_theme_icon(type), type, i);
 			}
-			change_type->add_separator();
-			change_type->add_icon_item(get_editor_theme_icon(SNAME("Remove")), TTR("Remove Item"), Variant::VARIANT_MAX);
 
 			if (button_add_item) {
 				button_add_item->set_icon(get_editor_theme_icon(SNAME("Add")));
@@ -836,9 +836,6 @@ bool EditorPropertyArray::is_colored(ColorationMode p_mode) {
 	return p_mode == COLORATION_CONTAINER_RESOURCE;
 }
 
-void EditorPropertyArray::_bind_methods() {
-}
-
 EditorPropertyArray::EditorPropertyArray() {
 	object.instantiate();
 	page_length = int(EDITOR_GET("interface/inspector/max_array_dictionary_items_per_page"));
@@ -907,6 +904,8 @@ void EditorPropertyDictionary::_add_key_value() {
 	VariantInternal::initialize(&new_value, type);
 	object->set_new_item_value(new_value);
 
+	object->set_dict(dict);
+	slots[(dict.size() - 1) % page_length].update_prop_or_index();
 	emit_changed(get_edited_property(), dict);
 }
 
@@ -960,6 +959,10 @@ void EditorPropertyDictionary::_change_type_menu(int p_index) {
 				dict[key] = value;
 			} else {
 				dict.erase(key);
+				object->set_dict(dict);
+				for (Slot &slot : slots) {
+					slot.update_prop_or_index();
+				}
 			}
 
 			emit_changed(get_edited_property(), dict);
@@ -1114,6 +1117,8 @@ void EditorPropertyDictionary::_notification(int p_what) {
 		case NOTIFICATION_THEME_CHANGED:
 		case NOTIFICATION_ENTER_TREE: {
 			change_type->clear();
+			change_type->add_icon_item(get_editor_theme_icon(SNAME("Remove")), TTR("Remove Item"), Variant::VARIANT_MAX);
+			change_type->add_separator();
 			for (int i = 0; i < Variant::VARIANT_MAX; i++) {
 				if (i == Variant::CALLABLE || i == Variant::SIGNAL || i == Variant::RID) {
 					// These types can't be constructed or serialized properly, so skip them.
@@ -1123,8 +1128,6 @@ void EditorPropertyDictionary::_notification(int p_what) {
 				String type = Variant::get_type_name(Variant::Type(i));
 				change_type->add_icon_item(get_editor_theme_icon(type), type, i);
 			}
-			change_type->add_separator();
-			change_type->add_icon_item(get_editor_theme_icon(SNAME("Remove")), TTR("Remove Item"), Variant::VARIANT_MAX);
 
 			if (button_add_item) {
 				button_add_item->set_icon(get_editor_theme_icon(SNAME("Add")));
@@ -1158,9 +1161,6 @@ void EditorPropertyDictionary::_page_changed(int p_page) {
 		return;
 	}
 	update_property();
-}
-
-void EditorPropertyDictionary::_bind_methods() {
 }
 
 bool EditorPropertyDictionary::is_colored(ColorationMode p_mode) {
@@ -1377,9 +1377,6 @@ void EditorPropertyLocalizableString::_page_changed(int p_page) {
 	}
 	page_index = p_page;
 	update_property();
-}
-
-void EditorPropertyLocalizableString::_bind_methods() {
 }
 
 EditorPropertyLocalizableString::EditorPropertyLocalizableString() {
