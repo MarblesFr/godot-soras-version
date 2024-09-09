@@ -1241,6 +1241,10 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 				break;
 			}
 
+			if (!_validate_no_foreign()) {
+				break;
+			}
+
 			List<Node *> selection = editor_selection->get_selected_node_list();
 			List<Node *>::Element *e = selection.front();
 			if (e) {
@@ -2932,7 +2936,7 @@ void SceneTreeDock::_create() {
 		int original_position = -1;
 		if (only_one_top_node) {
 			parent = top_node->get_parent();
-			original_position = top_node->get_index();
+			original_position = top_node->get_index(false);
 		} else {
 			parent = top_node->get_parent()->get_parent();
 		}
