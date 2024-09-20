@@ -2989,23 +2989,23 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				const Item::CommandPolygonI *polygon_i = static_cast<const Item::CommandPolygonI *>(c);
 
 				// Polygon's can't be batched, so always create a new batch
-				current_batch = _new_batch(r_batch_broken);
+				r_current_batch = _new_batch(r_batch_broken);
 
-				current_batch->command_type = Item::Command::TYPE_POLYGON;
-				current_batch->command = c;
+				r_current_batch->command_type = Item::Command::TYPE_POLYGON;
+				r_current_batch->command = c;
 
 				TextureState tex_state(polygon_i->texture, texture_filter, texture_repeat, false, use_linear_colors);
-				if (tex_state != current_batch->tex_state) {
-					current_batch = _new_batch(r_batch_broken);
-					current_batch->set_tex_state(tex_state);
-					_prepare_batch_texture(current_batch, polygon_i->texture);
+				if (tex_state != r_current_batch->tex_state) {
+					r_current_batch = _new_batch(r_batch_broken);
+					r_current_batch->set_tex_state(tex_state);
+					_prepare_batch_texture(r_current_batch, polygon_i->texture);
 				}
 
 				// pipeline variant
 				{
 					static const PipelineVariant variant[RS::PRIMITIVE_MAX] = { PIPELINE_VARIANT_ATTRIBUTE_POINTS, PIPELINE_VARIANT_ATTRIBUTE_LINES, PIPELINE_VARIANT_ATTRIBUTE_LINES_STRIP, PIPELINE_VARIANT_ATTRIBUTE_TRIANGLES, PIPELINE_VARIANT_ATTRIBUTE_TRIANGLE_STRIP };
 					ERR_CONTINUE(polygon_i->primitive < 0 || polygon_i->primitive >= RS::PRIMITIVE_MAX);
-					current_batch->pipeline_variant = variant[polygon_i->primitive];
+					r_current_batch->pipeline_variant = variant[polygon_i->primitive];
 				}
 
 				InstanceData *instance_data = new_instance_data();
@@ -3020,7 +3020,7 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				instance_data->modulation[2] = color.b;
 				instance_data->modulation[3] = color.a;
 
-				_add_to_batch(r_index, r_batch_broken, current_batch);
+				_add_to_batch(r_index, r_batch_broken, r_current_batch);
 			} break;
 
 			case Item::Command::TYPE_PRIMITIVE: {

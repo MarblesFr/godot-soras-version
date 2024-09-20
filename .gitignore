@@ -379,3 +379,7 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 *.generated.props
+
+Godot.app
+macos_template.app
+macos.zip
