@@ -129,10 +129,10 @@ protected:
 
 	GDVIRTUAL7R_REQUIRED(bool, _intersect_ray, const Vector2 &, const Vector2 &, uint32_t, bool, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionRayResult>)
 	GDVIRTUAL7R_REQUIRED(int, _intersect_point, const Vector2 &, ObjectID, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
-	GDVIRTUAL9R_REQUIRED(int, _intersect_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
-	GDVIRTUAL9R_REQUIRED(bool, _cast_motion, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<real_t>, GDExtensionPtr<real_t>)
-	GDVIRTUAL10R_REQUIRED(bool, _collide_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
-	GDVIRTUAL8R_REQUIRED(bool, _rest_info, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeRestInfo>)
+	GDVIRTUAL8R_REQUIRED(int, _intersect_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
+	GDVIRTUAL8R_REQUIRED(bool, _cast_motion, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<real_t>, GDExtensionPtr<real_t>)
+	GDVIRTUAL9R_REQUIRED(bool, _collide_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
+	GDVIRTUAL7R_REQUIRED(bool, _rest_info, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeRestInfo>)
 
 public:
 	virtual bool intersect_ray(const RayParameters &p_parameters, RayResult &r_result) override {

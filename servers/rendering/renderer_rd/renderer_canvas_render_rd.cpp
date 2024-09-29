@@ -3000,13 +3000,14 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				r_current_batch = _new_batch(r_batch_broken);
 
 				r_current_batch->command_type = Item::Command::TYPE_POLYGON;
+				r_current_batch->has_blend = false;
 				r_current_batch->command = c;
 
 				TextureState tex_state(polygon_i->texture, texture_filter, texture_repeat, false, use_linear_colors);
-				if (tex_state != r_current_batch->tex_state) {
+				if (tex_state != r_current_batch->tex_info.state) {
 					r_current_batch = _new_batch(r_batch_broken);
-					r_current_batch->set_tex_state(tex_state);
-					_prepare_batch_texture(r_current_batch, polygon_i->texture);
+					r_current_batch->tex_info.state = tex_state;
+					_prepare_batch_texture_info(r_current_batch, polygon_i->texture);
 				}
 
 				// pipeline variant
@@ -3320,13 +3321,6 @@ void RendererCanvasRenderRD::_render_batch(RD::DrawListID p_draw_list, PipelineV
 			PushConstant push_constant;
 			push_constant.base_instance_index = p_batch->start;
 			RD::get_singleton()->draw_list_set_push_constant(p_draw_list, &push_constant, sizeof(PushConstant));
-
-			RD::Uniform u_instance_data(RD::UNIFORM_TYPE_STORAGE_BUFFER, 0, state.canvas_instance_data_buffers[state.current_data_buffer_index].instance_buffers[p_batch->instance_buffer_index]);
-			RD::get_singleton()->draw_list_bind_uniform_set(
-					p_draw_list,
-					uniform_set_cache->get_cache(shader.default_version_rd_shader, INSTANCE_DATA_UNIFORM_SET, u_instance_data),
-					INSTANCE_DATA_UNIFORM_SET);
-
 			RD::get_singleton()->draw_list_bind_vertex_array(p_draw_list, pb->vertex_array);
 			if (pb->indices.is_valid()) {
 				RD::get_singleton()->draw_list_bind_index_array(p_draw_list, pb->indices);

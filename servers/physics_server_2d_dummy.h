@@ -54,8 +54,8 @@ public:
 	virtual void set_angular_velocity(real_t p_velocity) override {}
 	virtual real_t get_angular_velocity() const override { return 0; }
 
-	virtual void set_transform(const Transform2D &p_transform) override {}
-	virtual Transform2D get_transform() const override { return Transform2D(); }
+	virtual void set_transform(const Transform2Di &p_transform) override {}
+	virtual Transform2Di get_transform() const override { return Transform2Di(); }
 
 	virtual Vector2 get_velocity_at_local_position(const Vector2 &p_position) const override { return Vector2(); }
 
@@ -115,7 +115,7 @@ public:
 
 	virtual int intersect_shape(const ShapeParameters &p_parameters, ShapeResult *r_results, int p_result_max) override { return 0; }
 	virtual bool cast_motion(const ShapeParameters &p_parameters, real_t &p_closest_safe, real_t &p_closest_unsafe) override { return false; }
-	virtual bool collide_shape(const ShapeParameters &p_parameters, Vector2 *r_results, int p_result_max, int &r_result_count) override { return false; }
+	virtual bool collide_shape(const ShapeParameters &p_parameters, Vector2i *r_results, int p_result_max, int &r_result_count) override { return false; }
 	virtual bool rest_info(const ShapeParameters &p_parameters, ShapeRestInfo *r_info) override { return false; }
 };
 
@@ -129,20 +129,16 @@ public:
 	virtual RID world_boundary_shape_create() override { return RID(); }
 	virtual RID separation_ray_shape_create() override { return RID(); }
 	virtual RID segment_shape_create() override { return RID(); }
-	virtual RID circle_shape_create() override { return RID(); }
 	virtual RID rectangle_shape_create() override { return RID(); }
-	virtual RID capsule_shape_create() override { return RID(); }
-	virtual RID convex_polygon_shape_create() override { return RID(); }
-	virtual RID concave_polygon_shape_create() override { return RID(); }
 
 	virtual void shape_set_data(RID p_shape, const Variant &p_data) override {}
 	virtual void shape_set_custom_solver_bias(RID p_shape, real_t p_bias) override {}
 
-	virtual ShapeType shape_get_type(RID p_shape) const override { return ShapeType::SHAPE_CIRCLE; }
+	virtual ShapeType shape_get_type(RID p_shape) const override { return ShapeType::SHAPE_RECTANGLE; }
 	virtual Variant shape_get_data(RID p_shape) const override { return Variant(); }
 	virtual real_t shape_get_custom_solver_bias(RID p_shape) const override { return 0; }
 
-	virtual bool shape_collide(RID p_shape_A, const Transform2D &p_xform_A, const Vector2 &p_motion_A, RID p_shape_B, const Transform2D &p_xform_B, const Vector2 &p_motion_B, Vector2 *r_results, int p_result_max, int &r_result_count) override { return false; }
+	virtual bool shape_collide(RID p_shape_A, const Transform2Di &p_xform_A, const Vector2i &p_motion_A, RID p_shape_B, const Transform2Di &p_xform_B, const Vector2i &p_motion_B, Vector2i *r_results, int p_result_max, int &r_result_count) override { return false; }
 
 	/* SPACE API */
 
@@ -166,13 +162,13 @@ public:
 	virtual void area_set_space(RID p_area, RID p_space) override {}
 	virtual RID area_get_space(RID p_area) const override { return RID(); }
 
-	virtual void area_add_shape(RID p_area, RID p_shape, const Transform2D &p_transform = Transform2D(), bool p_disabled = false) override {}
+	virtual void area_add_shape(RID p_area, RID p_shape, const Transform2Di &p_transform = Transform2D(), bool p_disabled = false) override {}
 	virtual void area_set_shape(RID p_area, int p_shape_idx, RID p_shape) override {}
-	virtual void area_set_shape_transform(RID p_area, int p_shape_idx, const Transform2D &p_transform) override {}
+	virtual void area_set_shape_transform(RID p_area, int p_shape_idx, const Transform2Di &p_transform) override {}
 
 	virtual int area_get_shape_count(RID p_area) const override { return 0; }
 	virtual RID area_get_shape(RID p_area, int p_shape_idx) const override { return RID(); }
-	virtual Transform2D area_get_shape_transform(RID p_area, int p_shape_idx) const override { return Transform2D(); }
+	virtual Transform2Di area_get_shape_transform(RID p_area, int p_shape_idx) const override { return Transform2Di(); }
 
 	virtual void area_remove_shape(RID p_area, int p_shape_idx) override {}
 	virtual void area_clear_shapes(RID p_area) override {}
@@ -186,10 +182,10 @@ public:
 	virtual ObjectID area_get_canvas_instance_id(RID p_area) const override { return ObjectID(); }
 
 	virtual void area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) override {}
-	virtual void area_set_transform(RID p_area, const Transform2D &p_transform) override {}
+	virtual void area_set_transform(RID p_area, const Transform2Di &p_transform) override {}
 
 	virtual Variant area_get_param(RID p_parea, AreaParameter p_param) const override { return Variant(); }
-	virtual Transform2D area_get_transform(RID p_area) const override { return Transform2D(); }
+	virtual Transform2Di area_get_transform(RID p_area) const override { return Transform2Di(); }
 
 	virtual void area_set_collision_layer(RID p_area, uint32_t p_layer) override {}
 	virtual uint32_t area_get_collision_layer(RID p_area) const override { return 0; }
@@ -199,6 +195,7 @@ public:
 
 	virtual void area_set_monitorable(RID p_area, bool p_monitorable) override {}
 	virtual void area_set_pickable(RID p_area, bool p_pickable) override {}
+	virtual void area_set_collidable(RID p_area, bool p_collidable) override {};
 
 	virtual void area_set_monitor_callback(RID p_area, const Callable &p_callback) override {}
 	virtual void area_set_area_monitor_callback(RID p_area, const Callable &p_callback) override {}
@@ -213,16 +210,18 @@ public:
 	virtual void body_set_mode(RID p_body, BodyMode p_mode) override {}
 	virtual BodyMode body_get_mode(RID p_body) const override { return BodyMode::BODY_MODE_STATIC; }
 
-	virtual void body_add_shape(RID p_body, RID p_shape, const Transform2D &p_transform = Transform2D(), bool p_disabled = false) override {}
+	virtual void body_set_collider_type(RID p_body, ColliderType p_collider_type) override {};
+	virtual ColliderType body_get_collider_type(RID p_body) const override { return ColliderType::COLLIDER_TYPE_SOLID; };
+
+	virtual void body_add_shape(RID p_body, RID p_shape, const Transform2Di &p_transform = Transform2Di(), bool p_disabled = false) override {}
 	virtual void body_set_shape(RID p_body, int p_shape_idx, RID p_shape) override {}
-	virtual void body_set_shape_transform(RID p_body, int p_shape_idx, const Transform2D &p_transform) override {}
+	virtual void body_set_shape_transform(RID p_body, int p_shape_idx, const Transform2Di &p_transform) override {}
 
 	virtual int body_get_shape_count(RID p_body) const override { return 0; }
 	virtual RID body_get_shape(RID p_body, int p_shape_idx) const override { return RID(); }
-	virtual Transform2D body_get_shape_transform(RID p_body, int p_shape_idx) const override { return Transform2D(); }
+	virtual Transform2Di body_get_shape_transform(RID p_body, int p_shape_idx) const override { return Transform2Di(); }
 
 	virtual void body_set_shape_disabled(RID p_body, int p_shape, bool p_disabled) override {}
-	virtual void body_set_shape_as_one_way_collision(RID p_body, int p_shape, bool p_enabled, real_t p_margin = 0) override {}
 
 	virtual void body_remove_shape(RID p_body, int p_shape_idx) override {}
 	virtual void body_clear_shapes(RID p_body) override {}
@@ -289,13 +288,40 @@ public:
 	virtual void body_set_state_sync_callback(RID p_body, const Callable &p_callable) override {}
 	virtual void body_set_force_integration_callback(RID p_body, const Callable &p_callable, const Variant &p_udata = Variant()) override {}
 
-	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, Vector2 *r_results, int p_result_max, int &r_result_count) override { return false; }
+	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override { return false; }
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) override {}
+	virtual void body_set_collidable(RID p_body, bool p_collidable) override {};
+
+	virtual void body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) override {};
+	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) override {};
 
 	virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override { return body_state_dummy; }
 
+	virtual void body_set_is_riding_solid(RID p_body, const Callable &p_callable) override {};
+	virtual void body_set_is_riding_one_way(RID p_body, const Callable &p_callable) override {};
+	virtual void body_set_squish(RID p_body, const Callable &p_callable) override {};
+	virtual void body_set_move_h_exact(RID p_body, const Callable &p_callable) override {};
+	virtual void body_set_move_v_exact(RID p_body, const Callable &p_callable) override {};
+
+	virtual void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {};
+	virtual void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override {};
+
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override { return false; }
+	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
+	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) override { return false; };
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
+
+	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override { return false; };
+
+	// amount to move other body so it no longer overlaps
+	virtual int body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other) override { return false; };
+	virtual int body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other) override { return false; };
+
+	virtual bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) override { return false; };
+	virtual bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) override { return false; };
+
+	virtual Callable body_get_squish_callable(RID p_body) override { return Callable(); };
 
 	/* JOINT API */
 
