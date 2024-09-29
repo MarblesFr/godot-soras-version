@@ -127,53 +127,53 @@ protected:
 	static void _bind_methods();
 	bool is_body_excluded_from_query(const RID &p_body) const;
 
-	GDVIRTUAL7R(bool, _intersect_ray, const Vector2 &, const Vector2 &, uint32_t, bool, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionRayResult>)
-	GDVIRTUAL7R(int, _intersect_point, const Vector2 &, ObjectID, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
-	GDVIRTUAL8R(int, _intersect_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
-	GDVIRTUAL8R(bool, _cast_motion, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<real_t>, GDExtensionPtr<real_t>)
-	GDVIRTUAL9R(bool, _collide_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
-	GDVIRTUAL7R(bool, _rest_info, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeRestInfo>)
+	GDVIRTUAL7R_REQUIRED(bool, _intersect_ray, const Vector2 &, const Vector2 &, uint32_t, bool, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionRayResult>)
+	GDVIRTUAL7R_REQUIRED(int, _intersect_point, const Vector2 &, ObjectID, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
+	GDVIRTUAL9R_REQUIRED(int, _intersect_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeResult>, int)
+	GDVIRTUAL9R_REQUIRED(bool, _cast_motion, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<real_t>, GDExtensionPtr<real_t>)
+	GDVIRTUAL10R_REQUIRED(bool, _collide_shape, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
+	GDVIRTUAL8R_REQUIRED(bool, _rest_info, RID, const Transform2Di &, const Vector2i &, uint32_t, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionShapeRestInfo>)
 
 public:
 	virtual bool intersect_ray(const RayParameters &p_parameters, RayResult &r_result) override {
 		exclude = &p_parameters.exclude;
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_intersect_ray, p_parameters.from, p_parameters.to, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, p_parameters.hit_from_inside, &r_result, ret);
+		GDVIRTUAL_CALL(_intersect_ray, p_parameters.from, p_parameters.to, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, p_parameters.hit_from_inside, &r_result, ret);
 		exclude = nullptr;
 		return ret;
 	}
 	virtual int intersect_point(const PointParameters &p_parameters, ShapeResult *r_results, int p_result_max) override {
 		exclude = &p_parameters.exclude;
 		int ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_intersect_point, p_parameters.position, p_parameters.canvas_instance_id, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, ret);
+		GDVIRTUAL_CALL(_intersect_point, p_parameters.position, p_parameters.canvas_instance_id, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, ret);
 		exclude = nullptr;
 		return ret;
 	}
 	virtual int intersect_shape(const ShapeParameters &p_parameters, ShapeResult *r_results, int p_result_max) override {
 		exclude = &p_parameters.exclude;
 		int ret = 0;
-		GDVIRTUAL_REQUIRED_CALL(_intersect_shape, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, ret);
+		GDVIRTUAL_CALL(_intersect_shape, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, ret);
 		exclude = nullptr;
 		return ret;
 	}
 	virtual bool cast_motion(const ShapeParameters &p_parameters, real_t &p_closest_safe, real_t &p_closest_unsafe) override {
 		exclude = &p_parameters.exclude;
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_cast_motion, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, &p_closest_safe, &p_closest_unsafe, ret);
+		GDVIRTUAL_CALL(_cast_motion, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, &p_closest_safe, &p_closest_unsafe, ret);
 		exclude = nullptr;
 		return ret;
 	}
 	virtual bool collide_shape(const ShapeParameters &p_parameters, Vector2i *r_results, int p_result_max, int &r_result_count) override {
 		exclude = &p_parameters.exclude;
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_collide_shape, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, &r_result_count, ret);
+		GDVIRTUAL_CALL(_collide_shape, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_results, p_result_max, &r_result_count, ret);
 		exclude = nullptr;
 		return ret;
 	}
 	virtual bool rest_info(const ShapeParameters &p_parameters, ShapeRestInfo *r_info) override {
 		exclude = &p_parameters.exclude;
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_rest_info, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_info, ret);
+		GDVIRTUAL_CALL(_rest_info, p_parameters.shape_rid, p_parameters.transform, p_parameters.motion, p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas, r_info, ret);
 		exclude = nullptr;
 		return ret;
 	}
@@ -195,9 +195,9 @@ class PhysicsServer2DExtension : public PhysicsServer2D {
 protected:
 	static void _bind_methods();
 
-	GDVIRTUAL9R(bool, _shape_collide, RID, const Transform2Di &, const Vector2i &, RID, const Transform2Di &, const Vector2i &, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
+	GDVIRTUAL9R_REQUIRED(bool, _shape_collide, RID, const Transform2Di &, const Vector2i &, RID, const Transform2Di &, const Vector2i &, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
 
-	GDVIRTUAL8R(bool, _body_collide_shape, RID, int, RID, const Transform2Di &, const Vector2i &, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
+	GDVIRTUAL8R_REQUIRED(bool, _body_collide_shape, RID, int, RID, const Transform2Di &, const Vector2i &, GDExtensionPtr<Vector2i>, int, GDExtensionPtr<int>)
 
 public:
 	// The warning is valid, but unavoidable. If the function is not overridden it will error anyway.
@@ -218,7 +218,7 @@ public:
 
 	virtual bool shape_collide(RID p_shape_A, const Transform2Di &p_xform_A, const Vector2i &p_motion_A, RID p_shape_B, const Transform2Di &p_xform_B, const Vector2i &p_motion_B, Vector2i *r_results, int p_result_max, int &r_result_count) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_shape_collide, p_shape_A, p_xform_A, p_motion_A, p_shape_B, p_xform_B, p_motion_B, r_results, p_result_max, &r_result_count, ret);
+		GDVIRTUAL_CALL(_shape_collide, p_shape_A, p_xform_A, p_motion_A, p_shape_B, p_xform_B, p_motion_B, r_results, p_result_max, &r_result_count, ret);
 		return ret;
 	}
 
@@ -357,11 +357,11 @@ public:
 
 	EXBIND2(body_add_collision_exception, RID, RID)
 	EXBIND2(body_remove_collision_exception, RID, RID)
-	GDVIRTUAL1RC(TypedArray<RID>, _body_get_collision_exceptions, RID)
+	GDVIRTUAL1RC_REQUIRED(TypedArray<RID>, _body_get_collision_exceptions, RID)
 
 	void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override {
 		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_get_collision_exceptions, p_body, ret);
+		GDVIRTUAL_CALL(_body_get_collision_exceptions, p_body, ret);
 		for (int i = 0; i < ret.size(); i++) {
 			p_exceptions->push_back(ret[i]);
 		}
@@ -382,7 +382,7 @@ public:
 
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_collide_shape, p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, &r_result_count, ret);
+		GDVIRTUAL_CALL(_body_collide_shape, p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, &r_result_count, ret);
 		return ret;
 	}
 
@@ -394,15 +394,15 @@ public:
 
 	EXBIND1R(PhysicsDirectBodyState2D *, body_get_direct_state, RID)
 
-	GDVIRTUAL6RC(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
-	GDVIRTUAL4RC(bool, _body_collides_at, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResult>, const int16_t &)
-	GDVIRTUAL3RC(bool, _body_collides_at_with, RID, const Vector2i &, const RID &)
-	GDVIRTUAL4RC(TypedArray<RID>, _body_collides_at_all, RID, const Vector2i &, const bool &, const int16_t &)
+	GDVIRTUAL6RC_REQUIRED(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
+	GDVIRTUAL4RC_REQUIRED(bool, _body_collides_at, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResult>, const int16_t &)
+	GDVIRTUAL3RC_REQUIRED(bool, _body_collides_at_with, RID, const Vector2i &, const RID &)
+	GDVIRTUAL4RC_REQUIRED(TypedArray<RID>, _body_collides_at_all, RID, const Vector2i &, const bool &, const int16_t &)
 
-	GDVIRTUAL3RC(bool, _area_collides_at_with, RID, const Vector2i &, const RID &)
+	GDVIRTUAL3RC_REQUIRED(bool, _area_collides_at_with, RID, const Vector2i &, const RID &)
 
-	GDVIRTUAL3RC(int, _body_push_amount_h, RID, const int &, const RID &)
-	GDVIRTUAL3RC(int, _body_push_amount_v, RID, const int &, const RID &)
+	GDVIRTUAL3RC_REQUIRED(int, _body_push_amount_h, RID, const int &, const RID &)
+	GDVIRTUAL3RC_REQUIRED(int, _body_push_amount_v, RID, const int &, const RID &)
 
 	EXBIND2(body_set_is_riding_solid, RID, const Callable &)
 	EXBIND2(body_set_is_riding_one_way, RID, const Callable &)
@@ -410,18 +410,18 @@ public:
 	EXBIND2(body_set_move_h_exact, RID, const Callable &)
 	EXBIND2(body_set_move_v_exact, RID, const Callable &)
 
-	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_solid, RID)
-	GDVIRTUAL1RC(TypedArray<RID>, _body_get_riding_bodies_one_way, RID)
+	GDVIRTUAL1RC_REQUIRED(TypedArray<RID>, _body_get_riding_bodies_solid, RID)
+	GDVIRTUAL1RC_REQUIRED(TypedArray<RID>, _body_get_riding_bodies_one_way, RID)
 
-	GDVIRTUAL4RC(bool, _body_move_h_exact, RID, int32_t, Callable, RID)
-	GDVIRTUAL4RC(bool, _body_move_v_exact, RID, int32_t, Callable, RID)
+	GDVIRTUAL4RC_REQUIRED(bool, _body_move_h_exact, RID, int32_t, Callable, RID)
+	GDVIRTUAL4RC_REQUIRED(bool, _body_move_v_exact, RID, int32_t, Callable, RID)
 
-	GDVIRTUAL1RC(Callable, _body_get_squish_callable, RID)
+	GDVIRTUAL1RC_REQUIRED(Callable, _body_get_squish_callable, RID)
 
 	void body_get_riding_bodies_solid(RID p_body, List<RID> &r_bodies) override {
 		r_bodies.clear();
 		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_get_riding_bodies_solid, p_body, ret);
+		GDVIRTUAL_CALL(_body_get_riding_bodies_solid, p_body, ret);
 		for (int i = 0; i < ret.size(); i++) {
 			r_bodies.push_back(ret[i]);
 		}
@@ -430,7 +430,7 @@ public:
 	void body_get_riding_bodies_one_way(RID p_body, List<RID> &r_bodies) override {
 		r_bodies.clear();
 		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_get_riding_bodies_one_way, p_body, ret);
+		GDVIRTUAL_CALL(_body_get_riding_bodies_one_way, p_body, ret);
 		for (int i = 0; i < ret.size(); i++) {
 			r_bodies.push_back(ret[i]);
 		}
@@ -438,19 +438,19 @@ public:
 
 	bool body_move_h_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_move_h_exact, p_body, p_amount, p_callback, p_pusher, ret);
+		GDVIRTUAL_CALL(_body_move_h_exact, p_body, p_amount, p_callback, p_pusher, ret);
 		return ret;
 	}
 
 	bool body_move_v_exact(RID p_body, int32_t p_amount, const Callable &p_callback, const RID &p_pusher) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_move_v_exact, p_body, p_amount, p_callback, p_pusher, ret);
+		GDVIRTUAL_CALL(_body_move_v_exact, p_body, p_amount, p_callback, p_pusher, ret);
 		return ret;
 	}
 
 	Callable body_get_squish_callable(RID p_body) override {
 		Callable ret = Callable();
-		GDVIRTUAL_REQUIRED_CALL(_body_get_squish_callable, p_body, ret);
+		GDVIRTUAL_CALL(_body_get_squish_callable, p_body, ret);
 		return ret;
 	}
 
@@ -464,7 +464,7 @@ public:
 		bool ret = false;
 		exclude_bodies = &p_parameters.exclude_bodies;
 		exclude_objects = &p_parameters.exclude_objects;
-		GDVIRTUAL_REQUIRED_CALL(_body_test_motion, p_body, p_parameters.from, p_parameters.motion, p_parameters.collide_separation_ray, p_parameters.recovery_as_collision, r_result, ret);
+		GDVIRTUAL_CALL(_body_test_motion, p_body, p_parameters.from, p_parameters.motion, p_parameters.collide_separation_ray, p_parameters.recovery_as_collision, r_result, ret);
 		exclude_bodies = nullptr;
 		exclude_objects = nullptr;
 		return ret;
@@ -472,20 +472,20 @@ public:
 
 	bool body_collides_at(RID p_body, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at, p_body, p_delta, r_result, p_collision_type_filter, ret);
+		GDVIRTUAL_CALL(_body_collides_at, p_body, p_delta, r_result, p_collision_type_filter, ret);
 		return ret;
 	}
 
 	bool body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_with, p_body, p_delta, p_other, ret);
+		GDVIRTUAL_CALL(_body_collides_at_with, p_body, p_delta, p_other, ret);
 		return ret;
 	}
 
 	bool body_collides_at_all(RID p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		r_bodies.clear();
 		TypedArray<RID> ret;
-		GDVIRTUAL_REQUIRED_CALL(_body_collides_at_all, p_body, p_delta, p_smear, p_collision_type_filter, ret);
+		GDVIRTUAL_CALL(_body_collides_at_all, p_body, p_delta, p_smear, p_collision_type_filter, ret);
 		for (int i = 0; i < ret.size(); i++) {
 			r_bodies.push_back(ret[i]);
 		}
@@ -495,19 +495,19 @@ public:
 
 	bool area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) override {
 		bool ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_area_collides_at_with, p_area, p_delta, p_other, ret);
+		GDVIRTUAL_CALL(_area_collides_at_with, p_area, p_delta, p_other, ret);
 		return ret;
 	}
 
 	int body_push_amount_h(RID p_body, const int p_move_amount, const RID &p_other) override {
 		int ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_push_amount_h, p_body, p_move_amount, p_other, ret);
+		GDVIRTUAL_CALL(_body_push_amount_h, p_body, p_move_amount, p_other, ret);
 		return ret;
 	}
 
 	int body_push_amount_v(RID p_body, const int p_move_amount, const RID &p_other) override {
 		int ret = false;
-		GDVIRTUAL_REQUIRED_CALL(_body_push_amount_v, p_body, p_move_amount, p_other, ret);
+		GDVIRTUAL_CALL(_body_push_amount_v, p_body, p_move_amount, p_other, ret);
 		return ret;
 	}
 
@@ -540,9 +540,9 @@ public:
 
 	/* MISC */
 
-	GDVIRTUAL1(_free_rid, RID)
+	GDVIRTUAL1_REQUIRED(_free_rid, RID)
 	virtual void free(RID p_rid) override {
-		GDVIRTUAL_REQUIRED_CALL(_free_rid, p_rid);
+		GDVIRTUAL_CALL(_free_rid, p_rid);
 	}
 
 	EXBIND1(set_active, bool)
