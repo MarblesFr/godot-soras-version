@@ -409,6 +409,23 @@ void NavMeshGenerator2D::generator_bake_from_source_geometry_data(Ref<Navigation
 
 	PathsD path_solution = Difference(traversable_polygon_paths, obstruction_polygon_paths, FillRule::NonZero);
 
+	int32_t agent_width = p_navigation_mesh->get_agent_width();
+	int32_t agent_height = p_navigation_mesh->get_agent_height();
+	if (agent_width >= 0 || agent_height >= 0) {
+		PathsD agent_path;
+		for (int i = 0; i < agent_width; i++) {
+			PathsD new_path = Difference(TranslatePaths(traversable_polygon_paths, i, -i), TranslatePaths(path_solution, i, -i), FillRule::NonZero);
+			new_path = Intersect(new_path, TranslatePaths(path_solution, i, 0), FillRule::NonZero);
+			agent_path = Union(agent_path, new_path, FillRule::NonZero);
+			new_path = Difference(TranslatePaths(traversable_polygon_paths, -i, -i), TranslatePaths(path_solution, -i, -i), FillRule::NonZero);
+			new_path = Intersect(new_path, TranslatePaths(path_solution, -i, 0), FillRule::NonZero);
+			agent_path = Union(agent_path, new_path, FillRule::NonZero);
+		}
+		for (int i = 0; i < agent_height; i++) {
+			agent_path = Union(agent_path, Difference(TranslatePaths(traversable_polygon_paths, 0, -i), TranslatePaths(path_solution, 0, -i), FillRule::NonZero), FillRule::NonZero);
+		}
+		path_solution = Intersect(path_solution, agent_path, FillRule::NonZero);
+	}
 	real_t agent_radius_offset = p_navigation_mesh->get_agent_radius();
 	if (agent_radius_offset > 0.0) {
 		path_solution = InflatePaths(path_solution, -agent_radius_offset, JoinType::Miter, EndType::Polygon);

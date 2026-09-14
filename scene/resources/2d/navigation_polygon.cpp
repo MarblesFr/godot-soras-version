@@ -507,6 +507,24 @@ real_t NavigationPolygon::get_agent_radius() const {
 	return agent_radius;
 }
 
+void NavigationPolygon::set_agent_width(int32_t p_value) {
+	ERR_FAIL_COND(p_value < -1);
+	agent_width = p_value;
+}
+
+int32_t NavigationPolygon::get_agent_width() const {
+	return agent_width;
+}
+
+void NavigationPolygon::set_agent_height(int32_t p_value) {
+	ERR_FAIL_COND(p_value < -1);
+	agent_height = p_value;
+}
+
+int32_t NavigationPolygon::get_agent_height() const {
+	return agent_height;
+}
+
 void NavigationPolygon::set_baking_rect(const Rect2 &p_rect) {
 	baking_rect = p_rect;
 	emit_changed();
@@ -579,6 +597,12 @@ void NavigationPolygon::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_agent_radius", "agent_radius"), &NavigationPolygon::set_agent_radius);
 	ClassDB::bind_method(D_METHOD("get_agent_radius"), &NavigationPolygon::get_agent_radius);
 
+	ClassDB::bind_method(D_METHOD("set_agent_width", "agent_width"), &NavigationPolygon::set_agent_width);
+	ClassDB::bind_method(D_METHOD("get_agent_width"), &NavigationPolygon::get_agent_width);
+
+	ClassDB::bind_method(D_METHOD("set_agent_height", "agent_height"), &NavigationPolygon::set_agent_height);
+	ClassDB::bind_method(D_METHOD("get_agent_height"), &NavigationPolygon::get_agent_height);
+
 	ClassDB::bind_method(D_METHOD("set_baking_rect", "rect"), &NavigationPolygon::set_baking_rect);
 	ClassDB::bind_method(D_METHOD("get_baking_rect"), &NavigationPolygon::get_baking_rect);
 	ClassDB::bind_method(D_METHOD("set_baking_rect_offset", "rect_offset"), &NavigationPolygon::set_baking_rect_offset);
@@ -604,6 +628,8 @@ void NavigationPolygon::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "border_size", PROPERTY_HINT_RANGE, "0.0,500.0,1.0,or_greater,suffix:px"), "set_border_size", "get_border_size");
 	ADD_GROUP("Agents", "agent_");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "agent_radius", PROPERTY_HINT_RANGE, "0.0,500.0,0.01,or_greater,suffix:px"), "set_agent_radius", "get_agent_radius");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "agent_width", PROPERTY_HINT_RANGE, "-1,500,1,or_greater,suffix:px"), "set_agent_width", "get_agent_width");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "agent_height", PROPERTY_HINT_RANGE, "-1,500,1,or_greater,suffix:px"), "set_agent_height", "get_agent_height");
 	ADD_GROUP("Filters", "");
 	ADD_PROPERTY(PropertyInfo(Variant::RECT2, "baking_rect"), "set_baking_rect", "get_baking_rect");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "baking_rect_offset"), "set_baking_rect_offset", "get_baking_rect_offset");

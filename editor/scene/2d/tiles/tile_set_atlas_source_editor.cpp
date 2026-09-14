@@ -2819,6 +2819,8 @@ void EditorPropertyTilePolygon::_polygons_changed() {
 						source_geometry_data->add_traversable_outline(polygon);
 					}
 					navigation_polygon->set_agent_radius(0.0);
+					navigation_polygon->set_agent_width(-1);
+					navigation_polygon->set_agent_height(-1);
 					NavigationServer2D::get_singleton()->bake_from_source_geometry_data(navigation_polygon, source_geometry_data);
 				} else {
 					navigation_polygon->clear();

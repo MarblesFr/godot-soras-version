@@ -3669,6 +3669,8 @@ Variant TileDataNavigationEditor::_get_painted_value() {
 			source_geometry_data->add_traversable_outline(polygon);
 		}
 		nav_polygon->set_agent_radius(0.0);
+		nav_polygon->set_agent_width(-1);
+		nav_polygon->set_agent_height(-1);
 		NavigationServer2D::get_singleton()->bake_from_source_geometry_data(nav_polygon, source_geometry_data);
 	} else {
 		nav_polygon->clear();

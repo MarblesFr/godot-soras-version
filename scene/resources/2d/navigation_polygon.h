@@ -91,6 +91,8 @@ public:
 	};
 
 	real_t agent_radius = 10.0f;
+	int32_t agent_width = -1;
+	int32_t agent_height = -1;
 
 	SamplePartitionType partition_type = SAMPLE_PARTITION_CONVEX_PARTITION;
 	ParsedGeometryType parsed_geometry_type = PARSED_GEOMETRY_BOTH;
@@ -144,6 +146,12 @@ public:
 
 	void set_agent_radius(real_t p_value);
 	real_t get_agent_radius() const;
+
+	void set_agent_width(int32_t p_value);
+	int32_t get_agent_width() const;
+
+	void set_agent_height(int32_t p_value);
+	int32_t get_agent_height() const;
 
 	Ref<NavigationMesh> get_navigation_mesh();
 
